@@ -65,10 +65,19 @@ body{padding:0;overflow:hidden;height:100vh;height:100dvh}
 """
 
 SLIDES = r"""
-<section class="s centre" data-i="0"><div class="in"><div class="logo"><img alt="logotype VTLO" src="@@SMILEY@@"><div class="mot" aria-label="VTLO">@@MOT@@</div></div>
-<h1 style="margin:.5em 0 0;font-size:clamp(26px,5vw,44px)">VTLO_<span>RE</span>cod3r</h1>
-<p class="l" style="margin:.4em auto">Faire faire au <b>code</b> ce qui n’a pas besoin d’<b>IA</b>.<br>Moins de tokens. Plus de contrôle.</p>
-<p class="sous2">Présentation pour débutants · 2 minutes · touchez, glissez ou utilisez les flèches</p></div></section>
+<section class="s centre" data-i="0"><div class="in"><div class="logo" style="gap:14px"><img style="width:clamp(56px,10vw,92px)" alt="logotype VTLO" src="@@SMILEY@@"><div class="mot" style="font-size:clamp(40px,9vw,88px)" aria-label="VTLO">@@MOT@@</div></div>
+<h1 style="margin:.3em 0 0;font-size:clamp(24px,4.4vw,40px)">VTLO_<span>RE</span>cod3r</h1>
+<div class="manifeste" style="margin:14px auto 0;max-width:860px;text-align:left"><p style="margin:.1em 0;color:var(--vif);font-weight:900;letter-spacing:.08em;text-transform:uppercase;font-size:clamp(13px,2vw,16px)">Le but de l’outil</p>
+<p style="font-size:clamp(18px,3vw,28px);font-weight:800;line-height:1.3;margin:.2em 0 .5em">Réduire ce que vous payez à l’IA, en remplaçant par de petits programmes (scripts) tout ce qui n’a pas besoin de réfléchir.</p>
+<div class="phrase" style="margin:8px 0 0"><i style="--i:0">① Il repère dans vos outils d’IA les tâches répétitives</i><i style="--i:1">② Il écrit des scripts fiables à leur place</i><i style="--i:2">③ Vous validez d’un clic, il affiche l’économie réalisée</i></div></div>
+<p class="sous2">Moins de tokens · moins de coûts · plus de contrôle</p></div></section>
+
+<section class="s" data-i="9"><div class="in"><h2>Installation en UNE seule étape</h2>
+<p class="l"><b>1.</b> Ouvrez votre terminal. <b>2.</b> Collez cette ligne. <b>3.</b> Appuyez sur Entrée.</p>
+<div class="cmd"><span id="cmd">@@CMD@@</span><button onclick="cp()">Copier</button></div>
+<p class="l" style="margin-top:18px">C’est tout : l’outil détecte <b>tout seul</b> le CLI d’IA que vous utilisez (Claude Code, Gemini, agy, Codex…) et s’y installe.</p>
+<p class="l">Ensuite, tapez <span class="mono">/rec0d</span> → cliquez <b>COD3FORM3</b> ☺</p>
+<span class="clair"><b>En clair :</b> une commande à coller, un mot à taper, un bouton à cliquer.</span></div></section>
 
 <section class="s" data-i="1"><div class="in"><h2>Un « token », c’est quoi ?</h2>
 <p class="l">Un petit morceau de texte (3 ou 4 lettres). Chaque fois qu’une IA <b>lit</b> ou <b>écrit</b>, un compteur tourne — comme un taxi.</p>
@@ -113,11 +122,6 @@ SLIDES = r"""
 <div class="quatre"><span class="puce CODE">Lire</span><span class="puce CODE">Modifier</span><span class="puce CODE">Partager</span><span class="puce CODE">Le rester (copyleft)</span></div>
 <p style="color:var(--gris);font-size:15px">Des scripts locaux, lisibles, sans clé d’API ni abonnement : l’IA devient un <b>choix</b>, pas une obligation. VTLO_REcod3r est publié sous licence GPL-3.0.</p></div></div></section>
 
-<section class="s" data-i="9"><div class="in"><h2>Installer en une ligne</h2><p class="l">Dans votre terminal. Il détecte tout seul le CLI d’IA que vous utilisez.</p>
-<div class="cmd"><span id="cmd">@@CMD@@</span><button onclick="cp()">Copier</button></div>
-<p class="l" style="margin-top:18px">Puis, dans votre CLI : <span class="mono">/rec0d</span> → cliquez <b>COD3FORM3</b> ☺</p>
-<span class="clair"><b>En clair :</b> une commande à coller, un mot à taper, un bouton à cliquer.</span></div></section>
-
 <section class="s centre" data-i="10"><div class="in"><div class="logo"><img alt="VTLO" src="@@SMILEY@@"><div class="mot">@@MOT@@</div></div>
 <h2 style="margin-top:.6em">Le code pilote. L’IA tranche. Le libre protège.</h2><p class="sous2">copyleft ☺ · VTLO</p></div></section>
 """
@@ -134,7 +138,7 @@ function va(i){k=Math.max(0,Math.min(N-1,i));
  [...pts.children].forEach((p,j)=>p.classList.toggle('on',j===k));prog.style.width=((k+1)/N*100)+'%';location.hash=k+1;
  S[k].querySelectorAll('[data-count]').forEach(compte);
  const pl=document.getElementById('pluie');pl.innerHTML='';
- if(k===2)for(let n=0;n<46;n++){const u=document.createElement('u');u.style.cssText=`left:${Math.random()*100}%;animation-duration:${2+Math.random()*3}s;animation-delay:${-Math.random()*4}s`;pl.appendChild(u);}
+ if(S[k].dataset.i==='2')for(let n=0;n<46;n++){const u=document.createElement('u');u.style.cssText=`left:${Math.random()*100}%;animation-duration:${2+Math.random()*3}s;animation-delay:${-Math.random()*4}s`;pl.appendChild(u);}
  clearInterval(fl);const nds=[...S[k].querySelectorAll('.nd')];if(nds.length){let a=0;fl=setInterval(()=>{nds.forEach((n,j)=>n.classList.toggle('act',j===a%nds.length));a++;},900);}
 }
 function suiv(){va(k+1)}function prec(){va(k-1)}
