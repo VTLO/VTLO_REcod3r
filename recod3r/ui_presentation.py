@@ -60,6 +60,7 @@ body{padding:0;overflow:hidden;height:100vh;height:100dvh}
 .nav button:hover{box-shadow:0 0 18px #79d14e77}
 .pts{display:flex;gap:7px}.pts i{width:9px;height:9px;border-radius:50%;background:#26361f;cursor:pointer;transition:.3s}.pts i.on{background:var(--vif);box-shadow:0 0 12px var(--vif);transform:scale(1.35)}
 .prog{position:fixed;top:0;left:0;height:3px;background:var(--vif);box-shadow:0 0 14px var(--vif);z-index:40;transition:width .5s}
+@@INTROCSS@@
 .mini{position:fixed;top:12px;left:14px;z-index:35;display:flex;align-items:center;gap:8px;color:var(--gris);font-size:13px}.mini img{width:28px;border-radius:50%}
 """
 
@@ -141,7 +142,43 @@ function lecture(){const b=document.getElementById('play');if(auto){clearInterva
 addEventListener('keydown',e=>{if(['ArrowRight','PageDown',' '].includes(e.key)){e.preventDefault();suiv();}if(['ArrowLeft','PageUp'].includes(e.key))prec();if(e.key==='Home')va(0);if(e.key==='End')va(N-1);});
 let x0=null;addEventListener('touchstart',e=>x0=e.touches[0].clientX,{passive:true});addEventListener('touchend',e=>{if(x0===null)return;const d=e.changedTouches[0].clientX-x0;if(Math.abs(d)>50)d<0?suiv():prec();x0=null;});
 function cp(){const t=document.getElementById('cmd').textContent;(navigator.clipboard?navigator.clipboard.writeText(t):Promise.reject()).then(()=>{event.target.textContent='✔ copié';setTimeout(()=>event.target.textContent='Copier',1400)}).catch(()=>prompt('Copiez la commande :',t));}
-va(Math.max(0,(parseInt(location.hash.slice(1))||1)-1));
+"""
+
+
+
+INTRO_CSS = r"""
+#intro{position:fixed;inset:0;z-index:100;background:radial-gradient(ellipse at center,#0f1a0c,#000 70%);perspective:1300px;display:grid;place-items:center;overflow:hidden;cursor:pointer}
+#ibox{position:relative;transform-style:preserve-3d}
+.pz{position:absolute;background-image:url(@@BADGES@@);outline:1px solid #79d14e55;will-change:transform,opacity;opacity:0}
+#ibox.ok .pz{outline-color:transparent;transition:outline-color .3s}
+#ibox.ok{filter:drop-shadow(0 0 40px #79d14e99)}
+#iflash{position:absolute;inset:0;background:radial-gradient(circle,#dfffc8,#79d14e 40%,#0000 75%);opacity:0;pointer-events:none;mix-blend-mode:screen}
+"""
+INTRO_JS = r"""
+function intro(fin){
+ const ov=document.getElementById('intro'),box=document.getElementById('ibox'),fx=document.getElementById('iflash');
+ const R=1352/1204,vw=innerWidth,vh=innerHeight,w=Math.min(vw*.94,vh*.92*R),h=w/R,C=8,RW=6,pw=w/C,ph=h/RW;
+ box.style.width=w+'px';box.style.height=h+'px';let fini=false;
+ function fin2(){if(fini)return;fini=true;ov.remove();fin();}
+ ov.onclick=fin2;
+ for(let r=0;r<RW;r++)for(let c=0;c<C;c++){
+  const p=document.createElement('div');p.className='pz';
+  p.style.cssText=`left:${c*pw}px;top:${r*ph}px;width:${pw+1}px;height:${ph+1}px;background-size:${w}px ${h}px;background-position:${-c*pw}px ${-r*ph}px`;
+  box.appendChild(p);
+  const a=Math.random()*6.283,d=Math.max(vw,vh)*(.6+Math.random()*.6),rn=m=>(Math.random()*2-1)*m;
+  p.animate([{transform:`translate3d(${Math.cos(a)*d}px,${Math.sin(a)*d}px,${-300+Math.random()*800}px) rotateX(${rn(300)}deg) rotateY(${rn(300)}deg) rotateZ(${rn(200)}deg) scale(${.3+Math.random()*.5})`,opacity:0},
+   {opacity:1,offset:.12},{transform:'none',opacity:1}],
+   {duration:1350+Math.random()*350,delay:(c+r)*38+Math.random()*260,easing:'cubic-bezier(.2,.85,.25,1.08)',fill:'both'});
+ }
+ const K=[];for(let i=0;i<=60;i++){const t=i/60,e=Math.sin(Math.PI*Math.min(1,t*1.15))*(t<.78?(.35+t):1.1)*(i===47?2.4:1)*(t>.9?(1-t)*10:1);
+  K.push({transform:`translate3d(${(Math.random()*2-1)*16*e}px,${(Math.random()*2-1)*14*e}px,0) rotate(${(Math.random()*2-1)*1.3*e}deg)`})};
+ ov.animate(K,{duration:2900,easing:'linear'});
+ setTimeout(()=>{box.classList.add('ok');fx.animate([{opacity:0},{opacity:.85,offset:.25},{opacity:0}],{duration:520});},2050);
+ setTimeout(()=>ov.animate([{opacity:1,transform:'scale(1)'},{opacity:0,transform:'scale(1.12)'}],{duration:450,fill:'forwards'}),2550);
+ setTimeout(fin2,3000);
+}
+function demarre(){const h=parseInt(location.hash.slice(1));intro(()=>va(Math.max(0,(h||1)-1)));}
+if(location.search.indexOf('film')<0)demarre();
 """
 
 
@@ -152,7 +189,7 @@ def _mot(lettres: str = "∇TLO") -> str:
 
 
 def presentation() -> str:
-    css = CSS.replace("@@COPYLEFT@@", data_uri("copyleft.jpg", "image/jpeg")).replace("@@NOISE@@", NOISE_URI) + EXTRA_CSS
+    css = (CSS.replace("@@COPYLEFT@@", data_uri("copyleft.jpg", "image/jpeg")).replace("@@NOISE@@", NOISE_URI) + EXTRA_CSS.replace("@@INTROCSS@@", INTRO_CSS.replace("@@BADGES@@", data_uri("badges.jpg", "image/jpeg"))))
     smiley = data_uri("smiley.png", "image/png")
     phrase = "".join(f'<i style="--i:{i}">{w}</i>' for i, w in enumerate("Bonjour , rangez ces fichiers par date , s’il vous plaît .".split()))
     slides = (SLIDES.replace("@@SMILEY@@", smiley).replace("@@MOT@@", _mot()).replace("@@MOTFIXE@@", "∇TLO")
@@ -162,4 +199,4 @@ def presentation() -> str:
             f"<div class='prog' id='prog'></div><div class='mini'><img src='{smiley}' alt=''>∇TLO</div><div class='scene'>{slides}</div>"
             f"<div class='nav'><button onclick='prec()' aria-label='Précédent'>←</button><div class='pts' id='pts'></div>"
             f"<button onclick='suiv()' aria-label='Suivant'>→</button><button id='play' onclick='lecture()' aria-label='Lecture auto'>▶</button></div>"
-            f"<script>{JS}</script></body></html>")
+            f"<div id='intro'><div id='ibox'></div><div id='iflash'></div></div><script>{JS}{INTRO_JS}</script></body></html>")
