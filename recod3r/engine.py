@@ -230,6 +230,26 @@ def collect_defaults(cwd: Path):
 SKIP_DIRS = {".git", "node_modules", "__pycache__", ".venv", "venv", "dist", "build"}
 
 
+def _piece_jointe(f: Path) -> bool:
+    """Fichier de référence rattaché à un skill (references/, resources/…) : il suit son SKILL.md, ce n'est pas une tâche."""
+    if f.name.upper() == "SKILL.MD":
+        return False
+    for par in f.parents:
+        if par.name in ("references", "resources", "assets", "templates", "examples"):
+            return (par.parent / "SKILL.md").is_file()
+        if (par / "SKILL.md").is_file():
+            return True
+    return False
+
+
+def references_de(a) -> list:
+    """Fichiers joints d'un skill (références), pour le brief."""
+    p = Path(a.path)
+    if a.kind != "skill" or not p.is_file():
+        return []
+    return sorted(str(f.relative_to(p.parent)) for f in p.parent.rglob("*") if f.is_file() and f.name != "SKILL.md" and "scripts" not in f.parts)
+
+
 def collect_extra(spec: str):
     """spec = PATH[:agent]. PATH may be a file, a folder or a .zip/.skill archive."""
     agent = "custom"
@@ -260,6 +280,8 @@ def collect_extra(spec: str):
                 continue
             for f in fs:
                 if f.endswith((".md", ".mdc", ".toml", ".txt")):
+                    if _piece_jointe(Path(root) / f):
+                        continue
                     files.append(Path(root) / f)
     for f in files:
         t = _read(f)
@@ -1040,6 +1062,9 @@ def brief_text(a: Asset, r: dict, slug: str, lang: str, ext: str):
     orig = redact(a.body)[:6000]
     alts = "\n".join(f"- {x['lang']} : {x['why']}" for x in r["lang"]["alternatives"]) or "- aucune"
     ex = ", ".join(e["tool"] + ("" if e["installed"] else " (absent)") for e in r["lang"]["existing_tools"]) or "aucun"
+    refs = references_de(a)
+    refs_txt = ("\n## Fichiers de référence du skill (à intégrer dans le script, dossier : `" + str(Path(a.path).parent) + "`)\n"
+                + "\n".join(f"- {x}" for x in refs[:60]) + "\n") if refs else ""
     return f"""# Brief de codage : transformer « {a.name} » en script de qualité professionnelle ({lang})
 
 Tu l'écris UNE fois, d'un seul jet ; il tournera ensuite pour 0 token. Économie estimée : {fmt_n(r['save_month'])} tokens/mois
@@ -1071,7 +1096,7 @@ Outils existants à réutiliser plutôt que réinventer : {ex}
 
 ## Étapes qui deviennent du code
 {steps}
-
+{refs_txt}
 ## Étapes qui restent à l'IA (points de décision)
 {ai}
 

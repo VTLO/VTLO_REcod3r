@@ -169,6 +169,15 @@ def deployer(run: Path, slug: str) -> dict:
     shutil.copy2(script, target)
     target.chmod(0o755)
     it["copies"] = [str(target)]
+    # données jointes du skill (références, SKILL.md d'origine) : le script les lit au besoin dans data/<slug>/
+    src = Path(a.path)
+    if a.kind == "skill" and src.is_file():
+        data = out / "data" / slug
+        data.mkdir(parents=True, exist_ok=True)
+        shutil.copy2(src, data / "SKILL.md")
+        for rel in E.references_de(a):
+            (data / rel).parent.mkdir(parents=True, exist_ok=True)
+            shutil.copy2(src.parent / rel, data / rel)
     script_global = _tilde(target)
     bodies = E.stub_bodies(a, r, slug, script_global, script_global, lang)
     # skills et commandes convertis, prêts à copier dans l'outil d'IA de votre choix
