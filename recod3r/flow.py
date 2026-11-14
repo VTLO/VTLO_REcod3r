@@ -201,7 +201,7 @@ def _mk(nom: str, desc: str, rs: list) -> dict:
     wf = {"nom": nom, "description": desc, "variables": {"entree": "ENTREE.csv"}, "etapes": steps}
     wf["_meta"] = {"scripts": [r["slug"] for r in rs], "langages": sorted({r["langage"] for r in rs}),
                    "gain_relais_tokens_mois": round(gain), "executions_mois": round(runs, 1),
-                   "compat": "sortie JSON + codes 0/1/2/3 + lecture stdin/fichier (manifeste vérifié)"}
+                   "compat": "sortie JSON + codes 0/1/2/3 + lecture stdin/fichier (contrat commun)"}
     return wf
 
 

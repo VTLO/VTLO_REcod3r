@@ -2,31 +2,34 @@
 
 **Faire faire au code ce qui n'a pas besoin d'IA. Moins de tokens, plus de contrôle.**
 
-VTLO_REcod3r analyse vos skills, commandes et prompts (Claude Code, Gemini CLI, agy, Codex, ChatGPT…), repère ce qui peut être remplacé par des scripts fiables, puis les écrit, les teste et les installe — après votre validation.
+VTLO_REcod3r analyse vos skills, commandes et prompts (Claude Code, Gemini CLI, agy, Codex, ChatGPT…), repère ce qui peut être remplacé par des scripts, puis les écrit en une seule tâche après une validation unique.
 
-## Installation (une ligne)
+## Installation (cloner le dépôt)
 
 ```sh
-curl -fsSL https://raw.githubusercontent.com/VTLO/VTLO_REcod3r/main/install.sh | sh
+git clone https://github.com/VTLO/VTLO_REcod3r.git ~/VTLO_REcod3r && sh ~/VTLO_REcod3r/install.sh
 ```
 
-Le CLI d'IA utilisé est détecté automatiquement. Python 3.8+ suffit (aucune dépendance).
+Le dépôt reste en local (mise à jour : `git pull`). Python 3.8+ suffit, aucune dépendance. La commande **`vtlorecod`** est créée.
 
 ## Utilisation
 
-1. Tapez **`/rec0d`** dans votre CLI (ou `rec0d` dans un terminal) : l'analyse (lecture seule) produit le **rapport n°1**.
-2. Étape obligatoire : cliquez **COD3FORM3** pour valider, ou **IGNOR3** pour tout laisser en l'état.
-3. Après validation, chaque script est écrit, vérifié (vrais tests, contrôles de sécurité) puis déployé. Les originaux sont sauvegardés.
-4. Le **rapport n°2** affiche ce qui a été fait, l'économie de tokens estimée par script, et des workflows proposés pour un orchestrateur.
+1. Tapez **`vtlorecod`** dans un terminal : l'analyse (lecture seule) ouvre automatiquement le **rapport** dans une fenêtre, avec le détail des économies.
+2. Une seule validation globale : **OK** ou **IGNORER** (dans la fenêtre, ou `o` / `i` dans le terminal).
+3. Si OK : tous les scripts sont écrits en une seule tâche, avec la progression de 0 à 100 % en gros chiffres dans le terminal. Puis : *« IA sur le banc de touche !! Place au c0d3 pour la frappe décisive !!!! »*
+4. Le dossier **`~/vtlorecod_scripts/`** contient tout, prêt à lancer : `scripts/` (les scripts), `skills/` (skills convertis), `commandes/` (claude, gemini, codex-agy) et `LISEZMOI.md`.
+5. Option : `vtlorecod orchestrer` génère l'orchestration scriptée automatique (workflows qui enchaînent les scripts ; l'IA n'est appelée qu'aux points de décision).
+
+L'écriture des scripts utilise le CLI d'IA détecté (claude, gemini, codex) en mode non interactif, en **un seul appel**. Sans CLI utilisable, les briefs et une consigne unique (`PROMPT.md`) sont prêts : collez-la dans votre IA, puis `vtlorecod finaliser`.
 
 | Commande | Rôle |
 |---|---|
-| `vtlo-recod3r rec0d` | analyse + rapport n°1 |
-| `vtlo-recod3r rapport` | rapport n°2 |
-| `vtlo-recod3r restaurer` | annule tous les remplacements |
-| `vtlo-recod3r flow` | orchestrateur de workflows |
-| `vtlo-recod3r presentation` | présentation animée pour débutants |
-| `vtlo-recod3r diagnostic` / `desinstaller` | état / désinstallation |
+| `vtlorecod` | analyse, rapport, validation unique, écriture |
+| `vtlorecod finaliser` | installe des scripts rédigés à la main |
+| `vtlorecod orchestrer` | génère l'orchestration (option) |
+| `vtlorecod flow` | exécute / liste les workflows |
+| `vtlorecod restaurer` | annule tous les remplacements (sauvegardes) |
+| `vtlorecod presentation` | présentation animée pour débutants |
 
 Présentation : [`docs/presentation.html`](docs/presentation.html)
 

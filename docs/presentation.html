@@ -148,10 +148,10 @@ body{padding:0;overflow:hidden;height:100vh;height:100dvh}
 <p class="sous2">Moins de tokens · moins de coûts · plus de contrôle</p></div></section>
 
 <section class="s" data-i="9"><div class="in"><h2>Installation en UNE seule étape</h2>
-<p class="l"><b>1.</b> Ouvrez votre terminal. <b>2.</b> Collez cette ligne. <b>3.</b> Appuyez sur Entrée.</p>
-<div class="cmd"><span id="cmd">curl -fsSL https://raw.githubusercontent.com/VTLO/VTLO_REcod3r/main/install.sh | sh</span><button onclick="cp()">Copier</button></div>
-<p class="l" style="margin-top:18px">C’est tout : l’outil détecte <b>tout seul</b> le CLI d’IA que vous utilisez (Claude Code, Gemini, agy, Codex…) et s’y installe.</p>
-<p class="l">Ensuite, tapez <span class="mono">/rec0d</span> → cliquez <b>COD3FORM3</b> ☺</p>
+<p class="l"><b>1.</b> Ouvrez votre terminal. <b>2.</b> Collez cette ligne (elle copie le dépôt chez vous). <b>3.</b> Appuyez sur Entrée.</p>
+<div class="cmd"><span id="cmd">git clone https://github.com/VTLO/VTLO_REcod3r.git ~/VTLO_REcod3r && sh ~/VTLO_REcod3r/install.sh</span><button onclick="cp()">Copier</button></div>
+<p class="l" style="margin-top:18px">C’est tout : l’outil détecte <b>tout seul</b> le CLI d’IA que vous utilisez (Claude Code, Gemini, agy, Codex…).</p>
+<p class="l">Ensuite, dans le terminal, tapez <span class="mono">vtlorecod</span> → cliquez <b>OK</b> ☺</p>
 <span class="clair"><b>En clair :</b> une commande à coller, un mot à taper, un bouton à cliquer.</span></div></section>
 
 <section class="s" data-i="1"><div class="in"><h2>Un « token », c’est quoi ?</h2>
@@ -170,21 +170,21 @@ body{padding:0;overflow:hidden;height:100vh;height:100dvh}
 <div class="deux"><div class="col code"><h3>⚙ Du CODE</h3><ul><li style="--i:0">Trier, filtrer, renommer</li><li style="--i:1">Convertir un format, valider</li><li style="--i:2">Calculer, compter, appeler une API</li><li style="--i:3"><b>0 token</b> · millisecondes · même résultat à chaque fois</li></ul></div>
 <div class="col ia"><h3>✦ De l’IA</h3><ul><li style="--i:0">Comprendre un texte libre</li><li style="--i:1">Rédiger, résumer</li><li style="--i:2">Arbitrer un cas inédit</li><li style="--i:3">Là où elle est <b>indispensable</b></li></ul></div></div></div></section>
 
-<section class="s" data-i="4"><div class="in"><h2>Comment ça marche ?</h2><p class="l">Vous tapez <span class="mono">/rec0d</span>. C’est tout. Le reste se fait en 4 temps :</p>
+<section class="s" data-i="4"><div class="in"><h2>Comment ça marche ?</h2><p class="l">Vous tapez <span class="mono">vtlorecod</span>. C’est tout. Le reste se fait en 4 temps :</p>
 <div class="etapes"><div class="et" style="--i:0"><div class="num">1</div><b>Analyser</b><br><small>Il lit vos skills, commandes et prompts (Claude, Gemini, Codex, agy…).</small></div>
-<div class="et" style="--i:1"><div class="num">2</div><b>Vous décidez</b><br><small>Rapport cliquable : <b>COD3FORM3</b> pour valider, <b>IGNOR3</b> pour annuler.</small></div>
-<div class="et" style="--i:2"><div class="num">3</div><b>Coder</b><br><small>Chaque script est écrit, testé, vérifié, puis installé. Original sauvegardé.</small></div>
-<div class="et" style="--i:3"><div class="num">4</div><b>Bilan</b><br><small>Tokens économisés par tâche + workflows prêts à enchaîner.</small></div></div>
+<div class="et" style="--i:1"><div class="num">2</div><b>Vous décidez</b><br><small>Une fenêtre s’ouvre : un seul clic, <b>OK</b> pour valider ou <b>IGNORER</b> pour annuler.</small></div>
+<div class="et" style="--i:2"><div class="num">3</div><b>Coder</b><br><small>Tous les scripts sont écrits d’un seul trait, avec la progression de 0 à 100 %. Originaux sauvegardés.</small></div>
+<div class="et" style="--i:3"><div class="num">4</div><b>Dossier prêt</b><br><small>Scripts et skills convertis, utilisables tout de suite. Orchestration automatique en option.</small></div></div>
 <span class="clair"><b>En clair :</b> rien ne change avant votre clic.</span></div></section>
 
 <section class="s" data-i="5"><div class="in"><h2>Les chiffres</h2><p class="l">Exemple du document de référence : une étape de 2 000 tokens et 3 secondes, 1 000 fois par mois.</p>
 <div class="cmp"><div class="compteur"><span>Confiée à l’IA</span><b data-count="2000000" data-sep="1">0</b><span>tokens · 50 minutes · résultat variable</span></div>
 <div class="compteur" style="border-color:#3d6b2a"><span>Même étape en code</span><b data-count="0" data-suf=" token">0</b><span>quelques secondes · résultat identique · aucun matériel coûteux</span></div></div>
-<p class="vs">Chiffres illustratifs : vos économies réelles sont calculées dans le rapport n°2.</p></div></section>
+<p class="vs">Chiffres illustratifs : vos économies réelles sont calculées dans le rapport affiché avant votre validation.</p></div></section>
 
 <section class="s" data-i="6"><div class="in"><h2>Vous gardez la main</h2>
-<div class="cmp"><div class="compteur"><b style="font-size:30px">Rien avant le clic</b><span>l’analyse est en lecture seule</span></div><div class="compteur"><b style="font-size:30px">Sauvegarde</b><span><span class="mono">vtlo-recod3r restaurer</span> annule tout</span></div>
-<div class="compteur"><b style="font-size:30px">Vérifié</b><span>vrais tests, pas de code dangereux, contrat clair</span></div><div class="compteur"><b style="font-size:30px">Local</b><span>tout reste sur votre machine</span></div></div></div></section>
+<div class="cmp"><div class="compteur"><b style="font-size:30px">Rien avant le clic</b><span>l’analyse est en lecture seule</span></div><div class="compteur"><b style="font-size:30px">Sauvegarde</b><span><span class="mono">vtlorecod restaurer</span> annule tout</span></div>
+<div class="compteur"><b style="font-size:30px">Lisible</b><span>des scripts clairs que vous pouvez relire, modifier, réutiliser</span></div><div class="compteur"><b style="font-size:30px">Local</b><span>tout reste sur votre machine</span></div></div></div></section>
 
 <section class="s" data-i="7"><div class="in"><h2>Le code pilote, l’IA tranche</h2>
 <p class="l">Un orchestrateur enchaîne vos scripts. L’IA n’est appelée que pour <b>un</b> point de décision — et le code <b>revalide</b> sa réponse.</p>

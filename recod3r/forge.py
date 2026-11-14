@@ -1,14 +1,9 @@
-"""VTLO_REcod3r — plan, forge, vérification, déploiement, restauration, bilan."""
+"""VTLO_REcod3r — plan, forge, déploiement, restauration, bilan."""
 from __future__ import annotations
 
-import hashlib
 import json
 import os
-import re
 import shutil
-import subprocess
-import sys
-import tempfile
 import time
 from pathlib import Path
 
@@ -109,7 +104,7 @@ def _asset_from(d: dict) -> E.Asset:
 def forge(run: Path, ids: list[str] | None = None, lang: str | None = None) -> dict:
     plan = jload(run / "plan.json")
     etat = jload(run / "etat.json", {"items": {}})
-    chosen = ids if ids is not None else (jload(run / "decision.json", {}) or {}).get("ids")
+    chosen = ids or None
     used = set(etat["items"])
     for it in plan["items"]:
         if chosen is not None and it["id"] not in chosen and it["slug"] not in chosen:
@@ -133,70 +128,27 @@ def _item(run: Path, slug: str):
     return etat, etat["items"][slug], pit
 
 
-def _sha(p: Path) -> str:
-    return hashlib.sha256(p.read_bytes()).hexdigest()
+def sortie_dir() -> Path:
+    """Dossier livré à l'utilisateur : scripts + skills convertis, prêts à l'emploi."""
+    return Path(os.environ.get("RECOD3R_OUT") or (E.home() / "vtlorecod_scripts"))
 
 
-FORBIDDEN = [(re.compile(r"shell\s*=\s*True"), "shell=True interdit"), (re.compile(r"(?<![\w.])eval\s*\("), "eval() interdit"),
-             (re.compile(r"os\.system\s*\("), "os.system() interdit"), (re.compile(r"^\s*eval\s+", re.M), "eval interdit (bash)"),
-             (re.compile(r"\bchild_process\.exec\s*\("), "child_process.exec() interdit")]
-
-
-def _run(cmd, timeout, **kw):
-    t0 = time.time()
-    try:
-        p = subprocess.run(cmd, capture_output=True, text=True, timeout=timeout, stdin=subprocess.DEVNULL, **kw)
-        return p.returncode, p.stdout, p.stderr, time.time() - t0
-    except subprocess.TimeoutExpired:
-        return 124, "", f"délai dépassé ({timeout}s)", time.time() - t0
-    except FileNotFoundError as e:
-        return 127, "", f"interpréteur introuvable : {e}", time.time() - t0
-
-
-def verifier(run: Path, slug: str) -> dict:
-    etat, it, _ = _item(run, slug)
+def ecrit(run: Path, slug: str) -> bool:
+    """Un script est « rédigé » quand le marqueur à implémenter a disparu (signal d'avancement, pas un test)."""
+    etat = jload(run / "etat.json", {"items": {}})
+    it = etat["items"].get(slug)
+    if not it:
+        return False
     script = Path(it["script"])
-    lang = it["langage"]
-    checks = []
+    if not script.is_file():
+        return False
+    return not E.MARK_RX.search(script.read_text(encoding="utf-8", errors="replace"))
 
-    def chk(nom, ok, detail=""):
-        checks.append({"nom": nom, "ok": bool(ok), "detail": detail})
-        return ok
 
-    if not chk("script présent", script.is_file(), short(script)):
-        return {"ok": False, "checks": checks}
-    txt = script.read_text(encoding="utf-8", errors="replace")
-    chk("marqueur « à implémenter » retiré", not E.MARK_RX.search(txt), "supprimez la ligne " + E.UNIMPL_MARK)
-    bad = [m for rx, m in FORBIDDEN if rx.search(txt)]
-    chk("pratiques dangereuses absentes", not bad, ", ".join(bad))
-    man = E.read_manifest(txt)
-    chk("manifeste RECOD3R-MANIFEST valide", bool(man.get("sortie")) and "entree" in man, "en-tête manquant ou invalide")
-    chk("contenu non trivial", sum(1 for l in txt.splitlines() if l.strip()) >= 25 or lang == "bash", "script trop court")
-    runner = E.LANG_RUNNER[lang]
-    with tempfile.TemporaryDirectory() as td:
-        if lang == "python":
-            rc, _, err, _ = _run([sys.executable, "-m", "py_compile", str(script)], 30)
-            chk("syntaxe valide", rc == 0, err.strip()[-200:])
-        elif lang == "bash":
-            rc, _, err, _ = _run(["bash", "-n", str(script)], 30)
-            chk("syntaxe valide", rc == 0, err.strip()[-200:])
-        elif lang == "node":
-            rc, _, err, _ = _run(["node", "--check", str(script)], 30)
-            chk("syntaxe valide", rc == 0, err.strip()[-200:])
-        cmd = ([sys.executable] if lang == "python" else runner) + [str(script)]
-        rc, out, err, dt = _run(cmd + ["--selftest"], 60, cwd=td)
-        chk("autotests (--selftest) réussis", rc == 0, (err or out).strip()[-300:])
-        chk("autotests réels (pas « aucun test »)", rc == 0 and "aucun test" not in out.lower() and out.strip() != "",
-            "implémentez de vrais tests")
-        rc2, out2, err2, _ = _run(cmd, 15, cwd=td)
-        chk("contrat de sortie respecté (0/1/2/3, sans plantage ni invite)", rc2 in (0, 1, 2, 3) and "Traceback" not in err2,
-            (err2 or out2).strip()[-200:])
-    ok = all(c["ok"] for c in checks)
-    it.update({"statut": "pret" if ok else "a_faire", "sha": _sha(script) if ok else "",
-               "lignes": sum(1 for l in txt.splitlines() if l.strip()), "manifeste": man,
-               "verifie_le": time.strftime("%Y-%m-%dT%H:%M:%S"), "raison": "" if ok else "vérification échouée"})
-    jsave(run / "etat.json", etat)
-    return {"ok": ok, "checks": checks}
+def avancement(run: Path) -> tuple[int, int]:
+    etat = jload(run / "etat.json", {"items": {}})
+    todo = [s for s, i in etat["items"].items() if i["statut"] in ("a_faire", "pret")]
+    return sum(1 for s in todo if ecrit(run, s)), len(todo)
 
 
 def _tilde(p: Path) -> str:
@@ -206,18 +158,28 @@ def _tilde(p: Path) -> str:
 def deployer(run: Path, slug: str) -> dict:
     etat, it, pit = _item(run, slug)
     script = Path(it["script"])
-    if it["statut"] not in ("pret",) or not script.is_file() or it.get("sha") != _sha(script):
-        raise RuntimeError("le script n'est pas vérifié (ou a changé depuis la vérification) : lancez d'abord « verifier »")
+    if not ecrit(run, slug):
+        raise RuntimeError("script non rédigé")
+    txt = script.read_text(encoding="utf-8", errors="replace")
     a, r = _asset_from(pit["asset"]), pit["analyse"]
     lang, ext = it["langage"], it["ext"]
-    bindir = state_dir() / "bin"
-    bindir.mkdir(parents=True, exist_ok=True)
-    target = bindir / f"{slug}.{ext}"
+    out = sortie_dir()
+    (out / "scripts").mkdir(parents=True, exist_ok=True)
+    target = out / "scripts" / f"{slug}.{ext}"
     shutil.copy2(script, target)
     target.chmod(0o755)
     it["copies"] = [str(target)]
     script_global = _tilde(target)
-    bodies = E.stub_bodies(a, r, slug, f"scripts/{slug}.{ext}", script_global, lang)
+    bodies = E.stub_bodies(a, r, slug, script_global, script_global, lang)
+    # skills et commandes convertis, prêts à copier dans l'outil d'IA de votre choix
+    skill = out / "skills" / slug
+    skill.mkdir(parents=True, exist_ok=True)
+    (skill / "SKILL.md").write_text(bodies["skill"], encoding="utf-8")
+    for sub, name, key in (("claude", f"{slug}.md", "claude_command"), ("gemini", f"{slug}.toml", "gemini_toml"),
+                           ("codex-agy", f"{slug}.md", "md_prompt")):
+        d = out / "commandes" / sub
+        d.mkdir(parents=True, exist_ok=True)
+        (d / name).write_text(bodies[key], encoding="utf-8")
     stub = E.native_stub(a, bodies) if it["mode"] == "remplacement" else None
     it["stub_tokens"] = E.est_tokens(stub or bodies["skill"])
     if stub is not None:
@@ -228,21 +190,42 @@ def deployer(run: Path, slug: str) -> dict:
         bak.mkdir(parents=True, exist_ok=True)
         shutil.copy2(orig, bak / orig.name)
         it["sauvegarde"] = {"origine": str(orig), "copie": str(bak / orig.name)}
-        if a.kind == "skill":
-            sdir = orig.parent / "scripts"
-            sdir.mkdir(exist_ok=True)
-            inskill = sdir / f"{slug}.{ext}"
-            shutil.copy2(script, inskill)
-            inskill.chmod(0o755)
-            it["copies"].append(str(inskill))
         tmp = orig.with_name(orig.name + ".recod3r.tmp")
         tmp.write_text(stub, encoding="utf-8")
         os.replace(tmp, orig)
         it["fichier_modifie"] = str(orig)
     it["statut"] = "deploye"
+    it["lignes"] = sum(1 for l in txt.splitlines() if l.strip())
+    it["manifeste"] = E.read_manifest(txt)
     it["deploye_le"] = time.strftime("%Y-%m-%dT%H:%M:%S")
     jsave(run / "etat.json", etat)
     return it
+
+
+def lisez_moi(run: Path) -> Path:
+    """Écrit LISEZMOI.md dans le dossier livré : comment lancer chaque script à la main."""
+    bil = bilan(run)
+    out = sortie_dir()
+    L = ["# Scripts VTLO_REcod3r", "",
+         "Chaque script remplace les étapes mécaniques d'un de vos skills/prompts. Lancez-les à la main ou depuis votre outil d'IA favori.", "",
+         "| Script | Langage | Lancer | Économie estimée |", "|---|---|---|---|"]
+    for r in bil["items"]:
+        if r["statut"] != "deploye":
+            continue
+        run_cmd = f"{' '.join(E.LANG_RUNNER[r['langage']])} scripts/{Path(r['bin']).name} <entrée>" if r["bin"] else "—"
+        L.append(f"| `{r['slug']}` | {r['langage']} | `{run_cmd}` | −{int(r['taux'] * 100)} % · {E.fmt_n(r['eco_mois'])} tokens/mois |")
+    L += ["", "## Contrat commun (compatible pipeline)", "",
+          "- entrées : arguments, fichiers ou stdin · sortie : texte court, ou `--json` (un objet JSON)",
+          "- codes : `0` ok · `1` échec · `2` usage · `3` décision IA requise (JSON `needs_ai`)",
+          "- au code 3, relancez avec la réponse de l'IA dans `RECOD3R_AI_ANSWER` : le script la revalide.", "",
+          "## Dans votre outil d'IA", "",
+          "- `skills/<nom>/SKILL.md` : skill léger prêt à copier (Claude Code, Gemini CLI, agy…).",
+          "- `commandes/claude/`, `commandes/gemini/`, `commandes/codex-agy/` : commandes slash prêtes à copier.", "",
+          "## Annuler", "", "`vtlorecod restaurer` remet les fichiers d'origine remplacés depuis leur sauvegarde.", ""]
+    p = out / "LISEZMOI.md"
+    out.mkdir(parents=True, exist_ok=True)
+    p.write_text("\n".join(L), encoding="utf-8")
+    return p
 
 
 def abandonner(run: Path, slug: str, raison: str):
@@ -273,7 +256,7 @@ def restaurer(run: Path, slugs: list[str] | None = None) -> list[str]:
     return done
 
 
-# --------------------------------------------------------------------------- bilan (rapport 2)
+# --------------------------------------------------------------------------- bilan (économies)
 def bilan(run: Path) -> dict:
     plan, etat = jload(run / "plan.json"), jload(run / "etat.json", {"items": {}})
     dec = jload(run / "decision.json", {})

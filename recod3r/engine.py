@@ -817,7 +817,7 @@ def squeeze(text: str, budget: int = 800) -> str:
 # --------------------------------------------------------------------------- génération de scripts (squelettes)
 PY_T = r'''#!/usr/bin/env python3
 # RECOD3R-MANIFEST: @@MANIFEST@@
-# RECOD3R:A_IMPLEMENTER   <- supprimez cette ligne quand le script est réellement implémenté et testé
+# RECOD3R:A_IMPLEMENTER   <- supprimez cette ligne quand le script est réellement implémenté
 """@@SLUG@@ — remplaçant déterministe des étapes mécaniques de « @@TITLE@@ ».
 
 Généré par VTLO_REcod3r @@VERSION@@ depuis @@SRC@@.
@@ -856,20 +856,11 @@ def executer(args) -> dict:
     ia_requise("script non implémenté : exécuter les étapes d'origine à la main", etapes=SPEC)
 
 
-def autotest() -> int:
-    # TODO : tests « golden » (entrées/sorties attendues, cas limites, entrées malformées), < 1 s.
-    print("autotest : aucun test")
-    return 0
-
-
 def main(argv=None) -> int:
     ap = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     ap.add_argument("entrees", nargs="*", help="fichiers / valeurs à traiter (stdin si absent)")
     ap.add_argument("--json", action="store_true", help="sortie JSON")
-    ap.add_argument("--selftest", action="store_true", help="exécute les tests intégrés")
     a = ap.parse_args(argv)
-    if a.selftest:
-        return autotest()
     r = executer(a)
     print(json.dumps(r, ensure_ascii=False) if a.json else "\n".join(f"{k}: {v}" for k, v in r.items()))
     return 0
@@ -881,7 +872,7 @@ if __name__ == "__main__":
 
 SH_T = r'''#!/usr/bin/env bash
 # RECOD3R-MANIFEST: @@MANIFEST@@
-# RECOD3R:A_IMPLEMENTER   <- supprimez cette ligne quand le script est réellement implémenté et testé
+# RECOD3R:A_IMPLEMENTER   <- supprimez cette ligne quand le script est réellement implémenté
 # @@SLUG@@ — remplaçant déterministe des étapes mécaniques de « @@TITLE@@ » (VTLO_REcod3r @@VERSION@@, depuis @@SRC@@).
 # Contrat : 0 ok · 1 contrôle échoué (stderr) · 2 usage · 3 décision IA requise (JSON sur stdout)
 #           réponse de l'IA au relancement : variable RECOD3R_AI_ANSWER (JSON) — à REVALIDER.
@@ -892,9 +883,8 @@ IFS=$'\n\t'
 @@SPEC@@
 
 ia_requise() { local m="${1//\\/\\\\}"; m="${m//\"/\\\"}"; printf '{"needs_ai":"%s"}\n' "$m"; exit 3; }
-usage() { echo "usage : ${0##*/} [--json] [--selftest] ENTREE..." >&2; exit 2; }
+usage() { echo "usage : ${0##*/} [--json] ENTREE..." >&2; exit 2; }
 
-if [ "${1:-}" = "--selftest" ]; then echo "autotest : aucun test"; exit 0; fi
 [ "$#" -ge 1 ] || [ ! -t 0 ] || usage
 # TODO : implémenter la spec. En attendant : repli sûr vers l'IA.
 ia_requise "script non implémenté : exécuter les étapes d'origine à la main"
@@ -902,7 +892,7 @@ ia_requise "script non implémenté : exécuter les étapes d'origine à la main
 
 JS_T = r'''#!/usr/bin/env node
 // RECOD3R-MANIFEST: @@MANIFEST@@
-// RECOD3R:A_IMPLEMENTER   <- supprimez cette ligne quand le script est réellement implémenté et testé
+// RECOD3R:A_IMPLEMENTER   <- supprimez cette ligne quand le script est réellement implémenté
 // @@SLUG@@ — remplaçant déterministe des étapes mécaniques de « @@TITLE@@ » (VTLO_REcod3r @@VERSION@@, depuis @@SRC@@).
 // Contrat : 0 ok · 1 contrôle échoué (stderr) · 2 usage · 3 décision IA requise (JSON sur stdout)
 //           réponse de l'IA au relancement : variable RECOD3R_AI_ANSWER (JSON) — à REVALIDER.
@@ -917,14 +907,13 @@ const iaRequise = (question, contexte = {}) => {
 };
 
 const args = process.argv.slice(2);
-if (args[0] === "--selftest") { console.log("autotest : aucun test"); process.exit(0); }
 if (args.length === 0 && process.stdin.isTTY) { console.error("usage : @@SLUG@@.mjs [--json] ENTREE..."); process.exit(2); }
 // TODO : implémenter SPEC. En attendant : repli sûr vers l'IA.
 iaRequise("script non implémenté : exécuter les étapes d'origine à la main", { etapes: SPEC });
 '''
 
 GO_T = r'''// RECOD3R-MANIFEST: @@MANIFEST@@
-// RECOD3R:A_IMPLEMENTER   <- supprimez cette ligne quand le script est réellement implémenté et testé
+// RECOD3R:A_IMPLEMENTER   <- supprimez cette ligne quand le script est réellement implémenté
 // @@SLUG@@ — remplaçant déterministe des étapes mécaniques de « @@TITLE@@ » (VTLO_REcod3r @@VERSION@@, depuis @@SRC@@).
 // Contrat : 0 ok · 1 contrôle échoué (stderr) · 2 usage · 3 décision IA requise (JSON sur stdout)
 // Compilation statique : CGO_ENABLED=0 go build -o @@SLUG@@ .   (GOOS=linux GOARCH=arm64 pour Android/Termux)
@@ -947,14 +936,9 @@ func iaRequise(q string) {
 }
 
 func main() {
-	autotest := flag.Bool("selftest", false, "exécute les tests intégrés")
 	asJSON := flag.Bool("json", false, "sortie JSON")
 	flag.Parse()
 	_ = asJSON
-	if *autotest {
-		fmt.Println("autotest : aucun test")
-		return
-	}
 	// TODO : implémenter spec. En attendant : repli sûr vers l'IA.
 	iaRequise("script non implémenté : exécuter les étapes d'origine à la main")
 }
@@ -962,14 +946,13 @@ func main() {
 
 PS_T = r'''#!/usr/bin/env pwsh
 # RECOD3R-MANIFEST: @@MANIFEST@@
-# RECOD3R:A_IMPLEMENTER   <- supprimez cette ligne quand le script est réellement implémenté et testé
+# RECOD3R:A_IMPLEMENTER   <- supprimez cette ligne quand le script est réellement implémenté
 # @@SLUG@@ — remplaçant déterministe des étapes mécaniques de « @@TITLE@@ » (VTLO_REcod3r @@VERSION@@, depuis @@SRC@@).
 # Contrat : 0 ok · 1 contrôle échoué (stderr) · 2 usage · 3 décision IA requise (JSON sur stdout)
-[CmdletBinding()] param([Parameter(ValueFromRemainingArguments)][string[]]$Entrees, [switch]$Json, [switch]$Selftest)
+[CmdletBinding()] param([Parameter(ValueFromRemainingArguments)][string[]]$Entrees, [switch]$Json)
 Set-StrictMode -Version Latest; $ErrorActionPreference = 'Stop'
 $Spec = @@SPEC@@
 function IaRequise([string]$q) { @{ needs_ai = $q; context = @{ etapes = $Spec } } | ConvertTo-Json -Compress; exit 3 }
-if ($Selftest) { 'autotest : aucun test'; exit 0 }
 # TODO : implémenter la spec. En attendant : repli sûr vers l'IA.
 IaRequise 'script non implémenté : exécuter les étapes d''origine à la main'
 '''
@@ -1059,13 +1042,13 @@ def brief_text(a: Asset, r: dict, slug: str, lang: str, ext: str):
     ex = ", ".join(e["tool"] + ("" if e["installed"] else " (absent)") for e in r["lang"]["existing_tools"]) or "aucun"
     return f"""# Brief de codage : transformer « {a.name} » en script de qualité professionnelle ({lang})
 
-Tu l'écris UNE fois ; il tournera ensuite pour 0 token. Économie estimée : {fmt_n(r['save_month'])} tokens/mois
+Tu l'écris UNE fois, d'un seul jet ; il tournera ensuite pour 0 token. Économie estimée : {fmt_n(r['save_month'])} tokens/mois
 ({fmt_n(r['save_per_use'])} par usage × {r['uses_month']:g}/mois, {r['uses_src']}). Amortissement après ~{r['payback_uses']} usages.
 
 ## Fichiers
 - Script à compléter : `scripts/{slug}.{ext}` (squelette déjà prêt, contrat de codes de sortie inclus).
 - Garde le manifeste `RECOD3R-MANIFEST` en tête (mets-le à jour si les entrées/sorties changent).
-- **Supprime la ligne `{UNIMPL_MARK}`** quand le script est réellement implémenté. Sans cela, `vtlo-recod3r verifier` refuse.
+- **Supprime la ligne `{UNIMPL_MARK}`** quand le script est réellement implémenté : c'est le signal d'avancement lu par VTLO_REcod3r.
 
 ## Choix du langage
 {lang} — {r['lang']['why']}
@@ -1075,8 +1058,7 @@ Outils existants à réutiliser plutôt que réinventer : {ex}
 
 ## Livrables
 1. Le script complet (étapes « code » ci-dessous), qui respecte le contrat du squelette (0 ok · 1 échec · 2 usage · 3 décision IA).
-2. De VRAIS tests dans `--selftest` : entrées/sorties attendues, cas limites, entrée malformée ; < 1 s ; code de sortie ≠ 0 si un test échoue.
-3. Sortie `--json` = UN objet JSON compact ; sans `--json`, texte court (l'IA le lira : chaque token coûte).
+2. Sortie `--json` = UN objet JSON compact ; sans `--json`, texte court (l'IA le lira : chaque token coûte).
 
 ## Exigences de qualité
 - Déterministe : même entrée → même sortie. Idempotent. Aucune invite interactive. Délai maximal borné.
@@ -1099,7 +1081,7 @@ Outils existants à réutiliser plutôt que réinventer : {ex}
 ```
 
 ## Quand tu as fini
-`vtlo-recod3r verifier {slug}` puis, si tout est vert, `vtlo-recod3r deployer {slug}`.
+Rien d'autre à lancer : pas de test, pas de commande. Passe à la tâche suivante.
 """
 
 

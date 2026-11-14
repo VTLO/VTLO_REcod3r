@@ -1,4 +1,4 @@
-"""VTLO_REcod3r — serveur local de décision (127.0.0.1) : les boutons COD3FORM3 / IGNOR3 du rapport 1 y répondent."""
+"""VTLO_REcod3r — serveur local de décision (127.0.0.1) : les boutons OK / IGNORER du rapport y répondent."""
 from __future__ import annotations
 
 import json
@@ -66,16 +66,15 @@ def make_handler(token: str, html: str, dec: Decision, port_holder: dict):
             except ValueError:
                 return self._send(400, "{}")
             d = data.get("decision")
-            if d not in ("COD3FORM3", "IGNOR3"):
+            if d not in ("OK", "IGNORER"):
                 return self._send(400, json.dumps({"erreur": "décision invalide"}))
-            ids = [str(x) for x in data.get("ids", [])] if d == "COD3FORM3" else []
-            ok = dec.set(d, ids)
+            ok = dec.set(d, [])
             self._send(200, json.dumps({"ok": ok, "decision": dec.value}))
     return H
 
 
 def serve(run: Path, html_builder, timeout: int = 1800, port: int = 0):
-    """Sert le rapport 1 et attend la décision. Écrit decision.json (+ etat serveur pour « attendre »)."""
+    """Sert le rapport 1 et attend la décision. Écrit decision.json."""
     token = secrets.token_urlsafe(12)
     dec = Decision()
     holder = {}
