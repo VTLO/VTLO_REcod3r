@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 380" width="1280" height="380" role="img" aria-label="VTLO_REcod3r">
+<defs>
+<linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#070b12"/><stop offset="1" stop-color="#0e1f33"/></linearGradient>
+<linearGradient id="tx" x1="0" x2="1"><stop offset="0" stop-color="#39ff88"/><stop offset=".6" stop-color="#37d6ff"/><stop offset="1" stop-color="#a56bff"/></linearGradient>
+<radialGradient id="gl1" cx=".2" cy=".2" r=".6"><stop offset="0" stop-color="#1d7bff" stop-opacity=".45"/><stop offset="1" stop-color="#1d7bff" stop-opacity="0"/></radialGradient>
+<radialGradient id="gl2" cx=".85" cy=".9" r=".6"><stop offset="0" stop-color="#18e08c" stop-opacity=".4"/><stop offset="1" stop-color="#18e08c" stop-opacity="0"/></radialGradient>
+<style>
+.p{fill:#10243a;stroke:#37d6ff;stroke-opacity:.55;animation:in 2.6s cubic-bezier(.2,.9,.25,1.15) both}
+@keyframes in{from{transform:translate(var(--x),var(--y)) rotate(var(--r));opacity:0}to{transform:none;opacity:1}}
+.dot{animation:pl 2s ease-in-out infinite}@keyframes pl{50%{opacity:.25}}
+.rm{animation:rm .09s linear 8 2.3s}@keyframes rm{25%{transform:translate(-3px,2px)}50%{transform:translate(3px,-3px)}75%{transform:translate(-2px,-2px)}}
+</style></defs>
+<rect width="1280" height="380" fill="url(#bg)"/><rect width="1280" height="380" fill="url(#gl1)"/><rect width="1280" height="380" fill="url(#gl2)"/>
+<g stroke="#37d6ff" stroke-opacity=".08"><path d="M0 60H1280M0 120H1280M0 180H1280M0 240H1280M0 300H1280M0 360H1280M80 0V380M160 0V380M240 0V380M320 0V380M400 0V380M480 0V380M560 0V380M640 0V380M720 0V380M800 0V380M880 0V380M960 0V380M1040 0V380M1120 0V380M1200 0V380"/></g>
+<text x="70" y="150" font-family="ui-monospace,Consolas,monospace" font-weight="800" font-size="88" fill="url(#tx)">VTLO_REcod3r</text>
+<text x="74" y="204" font-family="system-ui,Segoe UI,Arial,sans-serif" font-weight="700" font-size="30" fill="#e9f0fa">Du code à la place de l'IA, partout où c'est possible.</text>
+<text x="74" y="246" font-family="system-ui,Segoe UI,Arial,sans-serif" font-size="21" fill="#8da2bb">Moins de tokens · moins d'euros · moins d'attente · plus de fiabilité</text>
+<g font-family="system-ui,Segoe UI,Arial,sans-serif" font-size="17" fill="#e9f0fa">
+<rect x="74" y="283" width="540" height="40" rx="20" fill="#ffffff" fill-opacity=".06" stroke="#ffffff" stroke-opacity=".15"/>
+<circle class="dot" cx="98" cy="303" r="6" fill="#39ff88"/><text x="116" y="309">Linux · Windows · macOS · Android · iOS</text>
+</g>
+<text x="1030" y="350" font-family="system-ui,Arial,sans-serif" font-size="17" fill="#39ff88" text-anchor="middle">ↄ copyleft · GPL-3.0 · VTLO</text>
+<g class="rm" transform="translate(880 58)">
+<g transform="">
+<rect class="p" x="0" y="0" width="90" height="90" style="--x:-300px;--y:-60px;--r:-80deg;animation-delay:.1s"/><rect class="p" x="90" y="0" width="90" height="90" style="--x:200px;--y:-120px;--r:120deg;animation-delay:.3s"/><rect class="p" x="180" y="0" width="90" height="90" style="--x:400px;--y:40px;--r:-140deg;animation-delay:.2s"/>
+<rect class="p" x="0" y="90" width="90" height="90" style="--x:-200px;--y:200px;--r:90deg;animation-delay:.5s"/><rect class="p" x="90" y="90" width="90" height="90" style="--x:30px;--y:260px;--r:-200deg;animation-delay:.4s"/><rect class="p" x="180" y="90" width="90" height="90" style="--x:300px;--y:210px;--r:160deg;animation-delay:.6s"/>
+<rect class="p" x="0" y="180" width="90" height="90" style="--x:-260px;--y:60px;--r:70deg;animation-delay:.8s"/><rect class="p" x="90" y="180" width="90" height="90" style="--x:-90px;--y:-200px;--r:-110deg;animation-delay:.7s"/><rect class="p" x="180" y="180" width="90" height="90" style="--x:330px;--y:-40px;--r:210deg;animation-delay:.9s"/>
+</g>
+<text x="135" y="168" font-family="ui-monospace,Consolas,monospace" font-weight="800" font-size="72" fill="#39ff88" text-anchor="middle" opacity=".95">∇</text>
+<text x="135" y="230" font-family="ui-monospace,Consolas,monospace" font-weight="800" font-size="40" fill="#37d6ff" text-anchor="middle">TLO</text>
+</g>
+</svg>

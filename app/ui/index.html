@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="t" content="__TOKEN__"><title>VTLO_REcod3r</title>
+<style>
+:root{--bg:#070b12;--card:rgba(255,255,255,.055);--bd:rgba(255,255,255,.1);--fg:#e9f0fa;--mu:#8da2bb;--g:#39ff88;--c:#37d6ff;--p:#a56bff;--y:#ffd23a;--r:#ff5c6c}
+*{box-sizing:border-box}html,body{margin:0;min-height:100%}
+body{background:var(--bg);color:var(--fg);font:15px/1.5 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;overflow-x:hidden;padding:env(safe-area-inset-top) 0 env(safe-area-inset-bottom)}
+.aur{position:fixed;inset:-20%;z-index:-1;filter:blur(70px);opacity:.55;background:radial-gradient(40% 35% at 20% 25%,#1d7bff 0,transparent 70%),radial-gradient(35% 30% at 80% 20%,#a56bff 0,transparent 70%),radial-gradient(40% 40% at 60% 85%,#18e08c 0,transparent 70%);animation:drift 18s ease-in-out infinite alternate}
+@keyframes drift{to{transform:translate3d(-4%,3%,0) rotate(6deg) scale(1.08)}}
+.grid{position:fixed;inset:0;z-index:-1;background-image:linear-gradient(rgba(255,255,255,.035) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.035) 1px,transparent 1px);background-size:44px 44px;mask-image:radial-gradient(70% 60% at 50% 30%,#000,transparent)}
+header{display:flex;align-items:center;justify-content:space-between;padding:18px 22px;max-width:1080px;margin:auto}
+.logo{font:800 22px/1 ui-monospace,Consolas,monospace;letter-spacing:-.5px}.logo b{color:var(--g)}.logo i{font-style:normal;color:var(--c)}
+.ver{color:var(--mu);font-size:12px}
+.steps{display:flex;gap:6px;max-width:1080px;margin:0 auto 6px;padding:0 22px}
+.st{flex:1;height:4px;border-radius:3px;background:rgba(255,255,255,.1);overflow:hidden;position:relative}.st.on::after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,var(--g),var(--c))}
+.stl{display:flex;max-width:1080px;margin:0 auto 14px;padding:0 22px;gap:6px;font-size:11px;color:var(--mu)}.stl span{flex:1}.stl .on{color:var(--fg)}
+main{max-width:1080px;margin:auto;padding:0 22px 60px}
+.card{background:var(--card);border:1px solid var(--bd);border-radius:22px;padding:22px;backdrop-filter:blur(14px);box-shadow:0 10px 50px rgba(0,0,0,.35)}
+h1{font:800 clamp(30px,6vw,56px)/1.05 system-ui;margin:0 0 14px;letter-spacing:-1.5px}
+h1 em{font-style:normal;background:linear-gradient(90deg,var(--g),var(--c) 55%,var(--p));-webkit-background-clip:text;background-clip:text;color:transparent}
+.lead{color:var(--mu);font-size:clamp(15px,2.2vw,19px);max-width:720px}
+.btn{border:0;border-radius:16px;padding:15px 26px;font:700 16px system-ui;cursor:pointer;color:#04140b;background:linear-gradient(135deg,var(--g),#9bffc8);box-shadow:0 0 0 0 rgba(57,255,136,.5);transition:transform .15s,box-shadow .3s}
+.btn:hover{transform:translateY(-2px);box-shadow:0 8px 34px rgba(57,255,136,.4)}.btn.ghost{background:transparent;color:var(--fg);border:1px solid var(--bd);box-shadow:none}
+.btn.ok{font-size:20px;padding:20px 38px;animation:pulse 2.2s infinite}@keyframes pulse{50%{box-shadow:0 0 0 14px rgba(57,255,136,0)}0%{box-shadow:0 0 0 0 rgba(57,255,136,.45)}}
+.row{display:flex;gap:12px;flex-wrap:wrap;align-items:center}.mt{margin-top:22px}
+.chip{display:inline-flex;gap:6px;align-items:center;border:1px solid var(--bd);border-radius:20px;padding:4px 12px;font-size:12px;background:rgba(255,255,255,.04)}.chip.on{border-color:rgba(57,255,136,.5);color:var(--g)}
+.chip::before{content:"";width:7px;height:7px;border-radius:50%;background:var(--mu)}.chip.on::before{background:var(--g);box-shadow:0 0 8px var(--g)}
+input[type=text]{width:100%;background:rgba(0,0,0,.3);border:1px solid var(--bd);border-radius:12px;padding:12px 14px;color:var(--fg);font:14px ui-monospace,monospace}
+.kp{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px}.k{padding:18px;border-radius:18px;background:rgba(0,0,0,.28);border:1px solid var(--bd)}
+.k .n{font:800 clamp(26px,4.4vw,40px)/1 ui-monospace,Consolas,monospace;white-space:nowrap}.k .l{color:var(--mu);font-size:13px;margin-top:6px}
+.k.g .n{color:var(--g)}.k.c .n{color:var(--c)}.k.y .n{color:var(--y)}.k.p .n{color:var(--p)}
+.sl{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px}.sl label{font-size:13px;color:var(--mu)}.sl b{color:var(--fg)}input[type=range]{width:100%;accent-color:var(--g)}
+.it{display:grid;grid-template-columns:minmax(0,2.2fr) minmax(0,1.6fr) 70px;gap:12px;align-items:center;padding:11px 4px;border-bottom:1px solid rgba(255,255,255,.07)}
+.it .nm{font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.it small{color:var(--mu);display:block;font-weight:400}
+.bar{height:8px;border-radius:5px;background:rgba(255,255,255,.08);overflow:hidden}.bar i{display:block;height:100%;width:0;border-radius:5px;background:linear-gradient(90deg,var(--g),var(--c));transition:width 1.2s cubic-bezier(.2,.8,.2,1)}
+.v{font:700 11px ui-monospace,monospace;border-radius:8px;padding:3px 8px;text-align:center}.v.CODE{background:rgba(57,255,136,.15);color:var(--g)}.v.HYBRID{background:rgba(255,210,58,.15);color:var(--y)}.v.AI{background:rgba(255,255,255,.08);color:var(--mu)}
+.dim{opacity:.45}
+.ring{position:relative;width:min(78vw,340px);aspect-ratio:1;margin:auto}.ring svg{width:100%;height:100%;transform:rotate(-90deg)}
+.ring .t{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;gap:6px;font:800 clamp(64px,19vw,110px)/1 ui-monospace,Consolas,monospace;text-shadow:0 0 30px rgba(57,255,136,.5)}.ring .t small{font-size:.38em;color:var(--mu);align-self:flex-end;margin-bottom:.55em}
+.done{font-size:14px;display:flex;gap:10px;padding:6px 0;color:var(--mu);transition:.4s}.done.ok{color:var(--g)}
+.ban{font:800 clamp(22px,4.6vw,40px)/1.15 system-ui;text-align:center;background:linear-gradient(90deg,var(--y),var(--g),var(--c));-webkit-background-clip:text;background-clip:text;color:transparent;margin:6px 0 18px}
+.path{font:600 15px ui-monospace,monospace;background:rgba(0,0,0,.35);border:1px solid var(--bd);border-radius:12px;padding:12px 16px;word-break:break-all}
+.warn{border:1px solid rgba(255,210,58,.5);background:rgba(255,210,58,.08);border-radius:14px;padding:12px 16px;color:var(--y);margin-top:14px}
+.radar{width:210px;height:210px;border-radius:50%;margin:20px auto;border:1px solid rgba(57,255,136,.4);position:relative;background:repeating-radial-gradient(circle,transparent 0 34px,rgba(57,255,136,.18) 35px 36px)}
+.radar::after{content:"";position:absolute;inset:0;border-radius:50%;background:conic-gradient(from 0deg,rgba(57,255,136,.55),transparent 28%);animation:sp 1.3s linear infinite}@keyframes sp{to{transform:rotate(360deg)}}
+footer{text-align:center;color:var(--mu);font-size:12px;padding:16px}
+#intro{position:fixed;inset:0;z-index:50;background:#05080d;display:grid;place-items:center;transition:opacity .7s}#intro.out{opacity:0;pointer-events:none}
+#pz{position:relative;width:min(92vw,720px);aspect-ratio:2/1}#pz div{position:absolute;background-size:var(--W) var(--H);will-change:transform,opacity;transition:transform 1.5s cubic-bezier(.2,.9,.25,1.15),opacity .6s;border:1px solid rgba(55,214,255,.45)}
+.rumble{animation:rb .09s linear 8}@keyframes rb{0%{transform:translate(0,0)}25%{transform:translate(-5px,3px)}50%{transform:translate(4px,-4px)}75%{transform:translate(-3px,-3px)}100%{transform:translate(3px,4px)}}
+.hide{display:none!important}.sec{display:none}.sec.on{display:block;animation:fi .5s}@keyframes fi{from{opacity:0;transform:translateY(10px)}}
+@media(max-width:620px){.it{grid-template-columns:1fr 60px}.it .bw{display:none}}
+</style></head><body>
+<div class="aur"></div><div class="grid"></div>
+<div id="intro"><div id="pz"></div></div>
+<header><div class="logo">VTLO<i>_</i><b>REcod3r</b></div><div class="ver" id="ver">v2</div></header>
+<div class="steps" id="steps"><div class="st"></div><div class="st"></div><div class="st"></div><div class="st"></div><div class="st"></div></div>
+<div class="stl" id="stl"><span>Scanner</span><span>Rapport</span><span>Valider</span><span>Conversion</span><span>Livraison</span></div>
+<main>
+<section class="sec" id="s0"><div class="card">
+<h1>Remplacez par du <em>code</em><br>ce qui n'a pas besoin d'<em>IA</em>.</h1>
+<p class="lead">VTLO_REcod3r parcourt vos skills, prompts et commandes (Claude, Gemini, Codex, agy…), repère les étapes mécaniques et les transforme en scripts prêts à lancer : <b>moins de tokens, moins d'euros, moins d'attente, plus de fiabilité.</b></p>
+<div class="row mt" id="agents"></div>
+<div class="mt"><label class="lead" style="font-size:13px">Dossiers ou archives .zip supplémentaires (un par ligne, facultatif)</label><input type="text" id="extra" placeholder="/chemin/vers/mes-skills  ou  C:\skills.zip"></div>
+<div class="row mt"><button class="btn" id="go">▶ Analyser mon système</button></div></div></section>
+<section class="sec" id="s1"><div class="card" style="text-align:center"><h1 style="font-size:32px">Analyse en cours…</h1><div class="radar"></div><p class="lead" style="margin:auto">Lecture des skills, classification code / IA, calcul des économies.</p></div></section>
+<section class="sec" id="s2">
+<div class="kp"><div class="k g"><div class="n" id="k1">0</div><div class="l">tokens économisés / mois</div></div><div class="k c"><div class="n" id="k2">0 €</div><div class="l">économisés / mois</div></div><div class="k y"><div class="n" id="k3">0 h</div><div class="l">d'attente évitées / mois</div></div><div class="k p"><div class="n" id="k4">0</div><div class="l">scripts à produire</div></div></div>
+<div class="card mt"><div class="sl">
+<div><label>Utilisateurs / équipes : <b id="uv">1</b></label><input type="range" id="u" min="1" max="50" value="1"></div>
+<div><label>Usages par skill et par mois : <b id="nv">20</b></label><input type="range" id="n" min="1" max="200" value="20"></div>
+<div><label>Prix du million de tokens : <b id="pv">2,80</b> €</label><input type="range" id="p" min="0.5" max="15" step="0.1" value="2.8"></div></div>
+<p class="lead" style="font-size:12px;margin:10px 0 0">Hypothèses modifiables : ajustez-les à votre usage réel, le rapport se recalcule.</p></div>
+<div class="card mt"><div id="list"></div><p><a href="#" id="more" style="color:var(--c)">Voir les éléments laissés à l'IA</a></p></div>
+<div class="card mt" style="text-align:center"><h1 style="font-size:30px;margin-bottom:6px">Une seule validation.</h1><p class="lead" style="margin:0 auto 18px">OK lance toutes les conversions d'un coup, avec l'avancement de 0 à 100 % en direct.</p>
+<div class="row" style="justify-content:center"><button class="btn ok" id="ok">OK — tout convertir</button><button class="btn ghost" id="ig">IGNORER</button></div></div></section>
+<section class="sec" id="s3"><div class="card" style="text-align:center"><div class="ring"><svg viewBox="0 0 120 120"><circle cx="60" cy="60" r="52" fill="none" stroke="rgba(255,255,255,.09)" stroke-width="8"/><circle id="arc" cx="60" cy="60" r="52" fill="none" stroke="url(#gr)" stroke-width="8" stroke-linecap="round" stroke-dasharray="326.7" stroke-dashoffset="326.7" style="transition:stroke-dashoffset .5s"/><defs><linearGradient id="gr"><stop offset="0" stop-color="#39ff88"/><stop offset="1" stop-color="#37d6ff"/></linearGradient></defs></svg><div class="t"><span id="pct">0</span><small>%</small></div></div>
+<p class="lead" style="margin:14px auto 4px" id="msg"></p><p class="lead" style="font-size:13px;margin:0" id="tm"></p>
+<div id="prog" style="text-align:left;max-width:520px;margin:18px auto 0"></div></div></section>
+<section class="sec" id="s4"><div class="card"><div class="ban">IA sur le banc de touche !!<br>Place au c0d3 pour la frappe décisive !!!!</div>
+<div class="kp"><div class="k g"><div class="n" id="d1">0</div><div class="l">scripts prêts</div></div><div class="k c"><div class="n" id="d2">0</div><div class="l">tokens / mois économisés</div></div><div class="k y"><div class="n" id="d3">0 €</div><div class="l">€ / mois</div></div></div>
+<p class="lead mt" style="margin-bottom:8px">Dossier créé, prêt à l'emploi :</p><div class="path" id="out"></div>
+<div id="note"></div>
+<div class="row mt"><button class="btn" id="op">Ouvrir le dossier</button><button class="btn ghost" id="or">Option : générer l'orchestration</button><button class="btn ghost" id="again">Recommencer</button></div><p class="lead" id="orm" style="font-size:13px"></p></div></section>
+<section class="sec" id="s5"><div class="card"><h1 style="font-size:34px">Aucune modification.</h1><p class="lead">Rien n'a été converti ni écrit. Vous pouvez relancer l'analyse quand vous voulez.</p><div class="row mt"><button class="btn" id="again2">Revenir</button></div></div></section>
+</main>
+<footer>VTLO_REcod3r · logiciel libre GPL-3.0 · <span style="font-size:14px">ↄ</span> copyleft · auteur VTLO</footer>
+<script>
+const $=i=>document.getElementById(i),T=window.__TAURI__,TOK=(document.querySelector('meta[name=t]')||{}).content;
+async function api(r,b={}){if(T&&T.core)return T.core.invoke('api',{route:r,body:b});const x=await fetch('/api/'+r,{method:'POST',headers:{'X-Token':TOK,'Content-Type':'application/json'},body:JSON.stringify(b)});return x.json()}
+const big=x=>x>=1e9?fr(x/1e9,1)+' Md':x>=1e6?fr(x/1e6,1)+' M':fr(x);
+const fr=(x,d=0)=>Number(x).toLocaleString('fr-FR',{minimumFractionDigits:d,maximumFractionDigits:d});
+let S=null,showAll=false,poll=null;
+function anim(el,to,fmt,ms=1100){const f=parseFloat(el.dataset.v||0),t0=performance.now();el.dataset.v=to;(function s(t){const k=Math.min(1,(t-t0)/ms),e=1-Math.pow(1-k,3);el.textContent=fmt(f+(to-f)*e);if(k<1)requestAnimationFrame(s)})(t0)}
+function show(n){document.querySelectorAll('.sec').forEach((s,i)=>s.classList.toggle('on',i==n));const st=[0,0,1,2,3,4][n]??0;[...$('steps').children].forEach((e,i)=>e.classList.toggle('on',i<=({0:0,1:0,2:2,3:3,4:4,5:2})[n]));[...$('stl').children].forEach((e,i)=>e.classList.toggle('on',i<=({0:0,1:0,2:2,3:3,4:4,5:2})[n]))}
+function par(){return{uses_per_month:+$('n').value,users:+$('u').value,eur_per_mtok:+$('p').value,extra:$('extra').value.split('\n').map(x=>x.trim()).filter(Boolean)}}
+function econ(){const p=par(),sel=S.items.filter(i=>i.convertible),m=p.uses_per_month*p.users;
+ const tok=sel.reduce((a,i)=>a+i.save_per_use*m,0),sec=sel.reduce((a,i)=>a+Math.max(0,i.ai_sec_per_use-i.script_sec_per_use)*m,0);
+ anim($('k1'),Math.round(tok),v=>big(v));anim($('k2'),tok/1e6*p.eur_per_mtok,v=>fr(v,v<100?2:0)+' €');anim($('k3'),sec/3600,v=>fr(v,1)+' h');anim($('k4'),sel.length,v=>Math.round(v));
+ $('uv').textContent=p.users;$('nv').textContent=p.uses_per_month;$('pv').textContent=fr(p.eur_per_mtok,2);list(m)}
+function list(m){const max=Math.max(1,...S.items.map(i=>i.save_per_use));let h='';
+ S.items.filter(i=>i.convertible||showAll).forEach(i=>{h+=`<div class="it ${i.convertible?'':'dim'}"><div class="nm">${esc(i.name)}<small>${i.agent==='extra'?'source ajoutée':esc(i.agent)} · ${i.convertible?i.lang:'reste à l\'IA'}${i.has_scripts?' · déjà scripté':''}</small></div><div class="bw"><div class="bar"><i data-w="${i.save_per_use/max*100}"></i></div><small style="color:var(--mu)">${i.convertible?'−'+fr(i.save_per_use)+' tokens/usage · ≈ '+fr(i.save_per_use*m/1e6*+$('p').value,2)+' €/mois':''}</small></div><div class="v ${i.verdict}">${i.verdict}</div></div>`});
+ $('list').innerHTML=h||'<p class="lead">Aucun skill trouvé : ajoutez un dossier ou une archive .zip.</p>';requestAnimationFrame(()=>document.querySelectorAll('#list .bar i').forEach(b=>b.style.width=b.dataset.w+'%'));$('more').textContent=showAll?'Masquer les éléments laissés à l\'IA':'Voir les éléments laissés à l\'IA ('+S.items.filter(i=>!i.convertible).length+')'}
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+function agents(){$('agents').innerHTML=(S.agents.length?S.agents:[]).map(a=>`<span class="chip on">${esc(a.label)}${a.headless?'':' (non pilotable)'}</span>`).join('')||'<span class="chip">Aucun CLI d\'IA détecté — les squelettes seront livrés avec leurs briefs</span>'}
+async function refresh(){S=await api('state');$('ver').textContent='v'+S.version+' · '+S.os;agents()}
+$('go').onclick=async()=>{show(1);const t0=Date.now();S=await api('scan',{params:par()});await new Promise(r=>setTimeout(r,Math.max(0,1600-(Date.now()-t0))));$('u').value=S.params.users;show(2);econ()};
+['u','n','p'].forEach(i=>$(i).oninput=econ);$('more').onclick=e=>{e.preventDefault();showAll=!showAll;econ()};
+$('ig').onclick=async()=>{await api('ignore');show(5)};$('again').onclick=$('again2').onclick=()=>{api('reset');show(0)};
+$('ok').onclick=async()=>{show(3);S=await api('convert',{params:par()});poll=setInterval(tick,400);tick()};
+async function tick(){S=await api('state');const p=S.progress;anim($('pct'),p.pct,v=>Math.round(v),350);$('arc').style.strokeDashoffset=326.7*(1-p.pct/100);$('msg').textContent=p.message+(p.agent?' · '+p.agent:'');$('tm').textContent=fr(p.elapsed,0)+' s · '+p.written+' / '+p.total+' scripts';
+ $('prog').innerHTML=p.items.map(i=>`<div class="done ${i.done?'ok':''}">${i.done?'✔':'○'} ${esc(i.name)}</div>`).join('');
+ if(S.phase==='done'){clearInterval(poll);setTimeout(finish,700)}}
+function finish(){show(4);const t=S.totals,p=S.params,sel=S.items.filter(i=>S.done.includes(i.slug)),m=p.uses_per_month*p.users,tok=sel.reduce((a,i)=>a+i.save_per_use*m,0);
+ anim($('d1'),S.done.length,v=>Math.round(v));anim($('d2'),tok,v=>big(v));anim($('d3'),tok/1e6*p.eur_per_mtok,v=>fr(v,v<100?2:0)+' €');$('out').textContent=S.out||'';
+ let n='';if(S.manual)n+=`<div class="warn">Aucun CLI d'IA pilotable n'a été détecté : les squelettes et briefs sont dans <b>a_completer/</b>. Donnez <b>PROMPT.md</b> à votre IA, elle écrira les scripts en une passe.</div>`;
+ else if(S.todo.length)n+=`<div class="warn">${S.todo.length} script(s) non écrits : voir <b>a_completer/</b>.</div>`;
+ if(S.error)n+=`<div class="warn">${esc(S.error)}</div>`;$('note').innerHTML=n}
+$('op').onclick=()=>api('open');
+$('or').onclick=async()=>{const r=await api('orchestrer');$('orm').textContent=r.error?r.error:'Généré dans '+r.dir+' : orchestrer.sh · orchestrer.ps1 · orchestrer.txt — les scripts s\'enchaînent, l\'IA n\'est appelée qu\'aux décisions.'};
+// intro puzzle (assemblage + tremblement 3 s)
+function intro(){const W=720,H=360,svg=`<svg xmlns='http://www.w3.org/2000/svg' width='${W}' height='${H}'><defs><linearGradient id='g' x1='0' y1='0' x2='1' y2='1'><stop offset='0' stop-color='#0b1424'/><stop offset='1' stop-color='#10243a'/></linearGradient><linearGradient id='t' x1='0' x2='1'><stop offset='0' stop-color='#39ff88'/><stop offset='1' stop-color='#37d6ff'/></linearGradient></defs><rect width='${W}' height='${H}' fill='url(#g)'/><g stroke='#37d6ff' stroke-opacity='.15'>${Array.from({length:12},(_, i)=>`<path d='M${i*60} 0V${H}M0 ${i*60}H${W}'/>`).join('')}</g><text x='50%' y='46%' text-anchor='middle' font-family='monospace' font-weight='800' font-size='74' fill='url(#t)'>VTLO_REcod3r</text><text x='50%' y='62%' text-anchor='middle' font-family='sans-serif' font-size='24' fill='#9fb4cc'>Du code à la place de l'IA, là où c'est possible</text><text x='50%' y='86%' text-anchor='middle' font-family='sans-serif' font-size='17' fill='#39ff88'>ↄ copyleft · GPL-3.0 · VTLO</text></svg>`,
+ u='url("data:image/svg+xml;utf8,'+encodeURIComponent(svg)+'")',pz=$('pz'),C=8,R=4,ts=[];
+ pz.style.setProperty('--W','100%');
+ for(let r=0;r<R;r++)for(let c=0;c<C;c++){const d=document.createElement('div');d.style.cssText=`left:${c*100/C}%;top:${r*100/R}%;width:${100/C}%;height:${100/R}%;background-image:${u};background-size:${C*100}% ${R*100}%;background-position:${c*100/(C-1)}% ${r*100/(R-1)}%`;
+  const a=Math.random()*6.28,dist=500+Math.random()*700;d.style.transform=`translate(${Math.cos(a)*dist}px,${Math.sin(a)*dist*.7}px) rotate(${(Math.random()-.5)*540}deg) scale(${.3+Math.random()*.5})`;d.style.opacity=0;d.style.transitionDelay=(Math.random()*.9)+'s';pz.appendChild(d);ts.push(d)}
+ requestAnimationFrame(()=>requestAnimationFrame(()=>ts.forEach(d=>{d.style.transform='none';d.style.opacity=1})));
+ setTimeout(()=>{pz.classList.add('rumble');ts.forEach(d=>d.style.borderColor='transparent')},1900);
+ setTimeout(()=>{pz.classList.remove('rumble');$('intro').classList.add('out')},3000);setTimeout(()=>$('intro').remove(),3800)}
+intro();refresh().then(()=>show(0));
+</script></body></html>

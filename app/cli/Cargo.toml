@@ -1,0 +1,16 @@
+[package]
+name = "recod3r-app"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+authors.workspace = true
+description = "VTLO_REcod3r — application autonome (interface visuelle locale)"
+
+[[bin]]
+name = "recod3r"
+path = "src/main.rs"
+
+[dependencies]
+recod3r-core = { path = "../core" }
+serde_json = "1"
+tiny_http = "0.12"

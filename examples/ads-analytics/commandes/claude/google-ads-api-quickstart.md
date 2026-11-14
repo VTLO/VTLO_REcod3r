@@ -1,0 +1,15 @@
+---
+description: Guides developers through Google Ads API quickstart: credential setup, choosing from 6 client libraries/REST, configurin
+allowed-tools: Bash(python3:*)
+---
+Résultat du script :
+!`python3 ~/vtlorecod_scripts/scripts/google-ads-api-quickstart.py $ARGUMENTS`
+
+N'agis que sur cette sortie.
+- code 0 : rapporte le résultat.
+- code 1 : rapporte stderr et arrête.
+- code 3 : stdout est un JSON `needs_ai` ; tranche UNIQUEMENT ce point, puis relance avec `RECOD3R_AI_ANSWER='<json>'` (le script revalide ta réponse). Points de décision :
+  - [ ] **Explain the Hierarchy:** Explain that the authenticating user likely belongs to a Manager Account that …
+  - [ ] **Explain the Routing Logic:** Explain that `login_customer_id` tells the API to route the OAuth credenti…
+  - [ ] **Explain the "Pending" Restriction:** Explain that an unapproved (Pending) developer token is fully func…
+  - Rely entirely on static code analysis, configuration review, and the diagnostic guides below to prevent endle…
