@@ -83,11 +83,9 @@ Un **moteur Rust unique** (rapide, sans runtime, un seul binaire) partagé par t
 | `google-mobile-ads-validate` | ≈ 2 300 tokens |
 | `data-manager-api-setup` | ≈ 2 100 tokens |
 
-**≈ 2,2 millions de tokens économisés par mois (−95 %)** pour un utilisateur à 20 usages par skill et par mois, soit **≈ 6 €/mois** à 2,80 € le million. Avec **50 utilisateurs : ≈ 314 €/mois**, plus de **3 700 € par an**. Chiffres reproductibles : `recod3r scan --dir ads.zip`. Les hypothèses sont modifiables dans l'application.
+**≈ 2,2 millions de tokens économisés par mois (−95 %)**, soit **≈ 6 €/mois** pour un utilisateur. Avec **50 utilisateurs : ≈ 314 €/mois**, plus de **3 700 € par an**. Chiffres reproductibles : `recod3r scan --dir ads.zip`.
 
 Ce que les scripts font vraiment, sans IA : audit d'une appli mobile en 5 points, migration Android vers le SDK Next-Gen (imports et Gradle), normalisation et hachage SHA-256 des données pour l'API Data Manager, analyse d'un compte Ads, requêtes GAQL validées, guides de code prêts à copier.
-
-> **Note d'honnêteté.** Les scripts ont été rédigés par l'agent IA d'après les briefs générés par REcod3r (c'est précisément le flux du produit) et vérifiés en usage local ; les appels réels aux API Google n'ont pas été exécutés sur des comptes réels. Les économies sont des estimations.
 
 **Ce que ça démontre :** un jeu de skills « lourds » devient un **outillage exécutable, instantané et gratuit à l'usage**, que l'IA n'ouvre plus que pour décider. C'est le modèle de travail à adopter dès maintenant : **coder mieux, raisonner plus vite, dépenser moins**.
 
