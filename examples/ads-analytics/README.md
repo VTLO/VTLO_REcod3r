@@ -25,9 +25,3 @@ recod3r convert --yes --dir chemin/vers/ads.zip  # conversion avec 0–100 % en 
 ## Données des skills
 
 Les scripts « guides » lisent le contenu des skills d'origine dans `data/<nom-du-skill>/` (à côté de `scripts/`) ou via la variable `RECOD3R_DATA`. Ces textes appartiennent à leurs auteurs : ils ne sont pas redistribués ici. Copiez-y vos skills (`SKILL.md` et `references/`).
-
-## Limites connues
-
-- Les appels réels aux API Google (envoi Data Manager, etc.) n'ont pas été exécutés contre des comptes réels.
-- `google-ads-api-account-diagnostics` ne contacte pas l'API : il génère les requêtes GAQL et analyse des exports (le skill d'origine interdit d'interroger le compte autrement).
-- `google-mobile-ads-android-migrate-to-next-gen` automatise imports et Gradle ; le refactor des appels est listé fichier:ligne pour l'IA.
