@@ -3,3 +3,4 @@ pub mod agents;
 pub mod api;
 pub mod engine;
 pub mod forge;
+pub mod integrate;

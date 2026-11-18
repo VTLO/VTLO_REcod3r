@@ -243,6 +243,8 @@ fn sources(cwd: &Path) -> Vec<(&'static str, &'static str, PathBuf, &'static [&'
         ("claude", "command", cwd.join(".claude/commands"), &["**/*.md"]),
         ("gemini", "command", h.join(".gemini/commands"), &["**/*.toml"]), ("gemini", "skill", h.join(".gemini/skills"), &["*/SKILL.md"]),
         ("gemini", "skill", h.join(".gemini/extensions"), &["*/skills/*/SKILL.md"]), ("gemini", "command", cwd.join(".gemini/commands"), &["**/*.toml"]),
+        ("agy", "skill", h.join(".gemini/antigravity-cli/skills"), &["*/SKILL.md"]), ("agy", "skill", h.join(".gemini/antigravity-cli/plugins"), &["*/skills/*/SKILL.md"]),
+        ("agy", "skill", h.join(".gemini/config/skills"), &["*/SKILL.md"]), ("agy", "skill", h.join(".gemini/skills"), &["*/SKILL.md"]), ("agy", "skill", cwd.join(".agents/skills"), &["*/SKILL.md"]),
         ("agy", "skill", h.join(".gemini/antigravity/skills"), &["*/SKILL.md"]), ("agy", "workflow", h.join(".gemini/antigravity/global_workflows"), &["*.md"]),
         ("agy", "skill", cwd.join(".agent/skills"), &["*/SKILL.md"]), ("agy", "workflow", cwd.join(".agent/workflows"), &["*.md"]),
         ("codex", "prompt", h.join(".codex/prompts"), &["*.md"]), ("codex", "skill", h.join(".codex/skills"), &["*/SKILL.md"]),

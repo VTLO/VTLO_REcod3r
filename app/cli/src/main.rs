@@ -42,8 +42,8 @@ fn print_report(st: &Value) {
     }
 }
 
-fn convert_terminal(app: &App) -> i32 {
-    app.handle("convert", &json!({}));
+fn convert_terminal(app: &App, agent: Option<String>) -> i32 {
+    app.handle("convert", &json!({"agent": agent}));
     let mut last = 1000u32;
     loop {
         std::thread::sleep(std::time::Duration::from_millis(300));
@@ -94,7 +94,11 @@ fn main() {
     let app = App::new();
     match cmd.as_str() {
         "scan" => { let st = app.handle("scan", &params_from(&args)); if args.iter().any(|a| a == "--json") { println!("{}", serde_json::to_string_pretty(&st).unwrap()); } else { print_report(&st); } }
-        "convert" => { app.handle("scan", &params_from(&args)); if !args.iter().any(|a| a == "--yes") { print_report(&app.handle("state", &json!({}))); eprintln!("\nAjoutez --yes pour valider la conversion."); std::process::exit(2); } std::process::exit(convert_terminal(&app)); }
+        "convert" => { app.handle("scan", &params_from(&args)); if !args.iter().any(|a| a == "--yes") { print_report(&app.handle("state", &json!({}))); eprintln!("\nAjoutez --yes pour valider la conversion."); std::process::exit(2); } std::process::exit(convert_terminal(&app, arg_val(&args, "--agent"))); }
+        "integrer" => {
+            let r = recod3r_core::integrate::integrer(arg_val(&args, "--agent").as_deref());
+            if r.is_empty() { println!("Aucun CLI d'IA détecté (claude, gemini, agy, codex). Utilisez --agent NOM pour forcer."); } else { println!("recod3r est maintenant disponible dans vos CLI d'IA :"); for f in r { println!("  ✔ {f}"); } println!("Tapez /recod3r dans l'outil (ou « convertis mes skills en scripts »)."); }
+        }
         "orchestrer" => {
             let out = recod3r_core::forge::out_dir();
             let mut entries = vec![];
@@ -102,7 +106,7 @@ fn main() {
             entries.sort();
             match recod3r_core::forge::orchestrer(&out, &entries) { Ok(_) => println!("Orchestration générée dans {} : orchestrer.sh / orchestrer.ps1 / orchestrer.txt ({} scripts)", recod3r_core::forge::tilde(&out), entries.len()), Err(e) => { eprintln!("{e}"); std::process::exit(1); } }
         }
-        "help" | "--help" | "-h" => println!("VTLO_REcod3r {}\n\n  recod3r                  ouvre l'application (interface visuelle)\n  recod3r scan [--dir D]   rapport dans le terminal (--json)\n  recod3r convert --yes    analyse + conversion avec 0–100 % en direct\n  recod3r orchestrer       génère l'orchestration des scripts livrés\n\nOptions : --dir DOSSIER_OU_ZIP (répétable) · --out DOSSIER · --users N · --price EUR_PAR_MTOK · --uses N · --port N · --no-open", engine::VERSION),
+        "help" | "--help" | "-h" => println!("VTLO_REcod3r {}\n\n  recod3r                  ouvre l'application (interface visuelle)\n  recod3r scan [--dir D]   rapport dans le terminal (--json)\n  recod3r convert --yes    analyse + conversion avec 0–100 % en direct\n  recod3r integrer         ajoute /recod3r dans agy, Claude Code, Gemini CLI, Codex\n  recod3r orchestrer       génère l'orchestration des scripts livrés\n\nOptions : --agent claude|gemini|agy|codex · --dir DOSSIER_OU_ZIP (répétable) · --out DOSSIER · --users N · --price EUR_PAR_MTOK · --uses N · --port N · --no-open", engine::VERSION),
         _ => serve(app, arg_val(&args, "--port").and_then(|p| p.parse().ok()).unwrap_or(0), !args.iter().any(|a| a == "--no-open")),
     }
 }

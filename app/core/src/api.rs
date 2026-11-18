@@ -108,21 +108,29 @@ fn run_conversion(st: Arc<Mutex<Inner>>, pref: Option<String>) {
     let mut manual = false;
     match agent {
         None => { manual = true; set(&st, |g| g.message = "Aucun CLI d'IA pilotable détecté : squelettes et briefs prêts à confier à votre IA".into()); }
-        Some(ag) => match agents::spawn(&ag, &prompt, &pfile, &run) {
+        Some(ag) => match agents::spawn(&ag, &pfile, &run) {
             Err(e) => { manual = true; set(&st, |g| { g.err = Some(format!("lancement de {ag} impossible : {e}")); }); }
             Ok(mut child) => {
                 set(&st, |g| g.message = "L'IA rédige les scripts en une seule tâche…".into());
                 let timeout = std::env::var("RECOD3R_TIMEOUT").ok().and_then(|v| v.parse::<u64>().ok()).unwrap_or(3600);
                 let t0 = Instant::now();
+                let mut exit_ok = true;
                 loop {
                     std::thread::sleep(Duration::from_millis(400));
                     let n = forged.iter().filter(|f| forge::written(&f.script)).count();
                     set(&st, |g| { g.written = n; g.pct = if total == 0 { 0 } else { ((n * 100 / total) as u32).min(99) };
                         for f in &forged { g.item_done.insert(f.slug.clone(), forge::written(&f.script)); } });
                     match child.try_wait() {
-                        Ok(Some(_)) | Err(_) => break,
+                        Ok(Some(status)) => { exit_ok = status.success(); break }
+                        Err(_) => break,
                         Ok(None) => if t0.elapsed().as_secs() > timeout { let _ = child.kill(); set(&st, |g| g.err = Some("délai dépassé : l'IA a été arrêtée".into())); break; }
                     }
+                }
+                let n = forged.iter().filter(|f| forge::written(&f.script)).count();
+                if (!exit_ok || n < total) && st.lock().unwrap().err.is_none() {
+                    let hint = if ag == "agy" { " Pour agy : lancez `agy` une fois en interactif pour vous connecter, puis réessayez." } else { "" };
+                    let tail = agents::log_tail(&run, 240);
+                    set(&st, |g| g.err = Some(format!("l'IA ({ag}) n'a écrit que {n} script(s) sur {total}.{hint}{}", if tail.is_empty() { String::new() } else { format!(" Journal : {tail}") })));
                 }
             }
         },
