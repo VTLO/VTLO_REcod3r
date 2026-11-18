@@ -10,13 +10,13 @@
 
 > **Faites faire au code ce qui n'a pas besoin d'IA. Gardez l'IA pour ce qui demande vraiment de réfléchir.**
 
-VTLO_REcod3r est **la prochaine grosse avancée de votre façon de coder et de raisonner avec « code + IA »** : plus performante, plus rapide, moins chère. C'est la méthode qui rend vos collègues numériques automatisés **prêts pour le réel** : le code exécute, l'IA décide, et le code revalide sa réponse. Pour tous ceux qui veulent des assistants de premier ordre, sans payer l'IA pour recopier la même liste tous les jours.
+VTLO_REcod3r est **la prochaine avancée de votre façon de coder et de raisonner avec « code + IA »** : plus performante, plus rapide, moins chère. C'est la méthode qui rend vos collègues numériques automatisés **prêts pour le réel** : le code exécute, l'IA décide, et le code revalide sa réponse. Pour tous ceux qui veulent des assistants de premier ordre, sans payer l'IA pour recopier la même liste tous les jours.
 
 <p align="center"><img src="docs/img/demo.gif" alt="Démonstration de l'application" width="760"></p>
 
 ---
 
-## 1 · L'application (version vitrine)
+## 1 · L'application
 
 Une application **autonome et multiplateforme** : elle analyse votre système, vous montre ce que vous gagnez, puis convertit tout en **une seule validation**.
 
