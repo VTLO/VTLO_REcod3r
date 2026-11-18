@@ -1,6 +1,7 @@
 """Détection des CLI d'IA et lancement non interactif (une seule tâche d'écriture).
 Compatibles : Claude Code, Gemini CLI, Antigravity CLI (agy), Codex CLI — ou toute commande via RECOD3R_AGENT_CMD."""
 import os
+import re
 import shutil
 import subprocess
 from pathlib import Path
@@ -42,13 +43,16 @@ def detect():
     return out
 
 
-def pilotable(prefer=None):
+def pilotables(prefer=None):
+    """Agents pilotables, dans l'ordre d'essai (celui demandé seul ; sinon tous ceux détectés, pour un repli automatique)."""
     if os.environ.get("RECOD3R_AGENT_CMD", "").strip():
-        return prefer or "custom"
-    for a in detect():
-        if a["headless"] and (prefer is None or prefer == a["key"]):
-            return a["key"]
-    return None
+        return [prefer or "custom"]
+    return [a["key"] for a in detect() if a["headless"] and (prefer is None or prefer == a["key"])]
+
+
+def pilotable(prefer=None):
+    p = pilotables(prefer)
+    return p[0] if p else None
 
 
 def short_prompt(prompt_file):
@@ -96,3 +100,37 @@ def log_tail(cwd, n):
         return ""
     t = redact(t.strip())
     return t[-n:]
+
+
+LOGIN_HINT = {
+    "gemini": "Gemini CLI n'est pas connecté en mode non interactif : lancez `gemini` une fois pour vous connecter, ou définissez GEMINI_API_KEY (clé gratuite sur aistudio.google.com) puis réessayez.",
+    "claude": "Claude Code n'est pas connecté : lancez `claude` une fois pour vous connecter (ou `claude setup-token`), puis réessayez.",
+    "agy": "agy n'est pas connecté : lancez `agy` une fois en interactif pour vous connecter, puis réessayez.",
+    "codex": "Codex n'est pas connecté : lancez `codex login`, puis réessayez.",
+}
+RX_AUTH = re.compile(r"(_doSetupUser|setupUser|authenticat|not logged|log ?in|sign ?in|api[_ -]?key|credential|oauth|unauthori[sz]ed|\b40[13]\b|GEMINI_API_KEY|ANTHROPIC_API_KEY|please run)", re.I)
+RX_NET = re.compile(r"(ENOTFOUND|ECONNREFUSED|ECONNRESET|ETIMEDOUT|fetch failed|network|getaddrinfo|EAI_AGAIN)", re.I)
+RX_QUOTA = re.compile(r"(quota|rate.?limit|\b429\b|RESOURCE_EXHAUSTED|overloaded)", re.I)
+RX_STACK = re.compile(r"(^\s*at\s|node:internal|\.m?js:\d+|node_modules|^\s*\^+\s*$|file:///)")
+
+
+def diagnose(agent, cwd):
+    """(cause lisible, journal nettoyé) à partir du journal de l'agent : jamais une trace de pile brute."""
+    try:
+        raw = (Path(cwd) / "agent.log").read_text(encoding="utf-8", errors="replace")
+    except OSError:
+        raw = ""
+    raw = redact(raw.strip())
+    lines = [l.strip() for l in raw.splitlines() if l.strip()]
+    useful = [l for l in lines if not RX_STACK.search(l)]
+    full = "\n".join(lines)
+    if RX_AUTH.search(full):
+        cause = LOGIN_HINT.get(agent, "l'agent demande une connexion : ouvrez-le une fois en interactif pour vous connecter.")
+    elif RX_QUOTA.search(full):
+        cause = "quota ou limite de débit atteint chez le fournisseur d'IA : patientez ou changez d'agent (--agent)."
+    elif RX_NET.search(full):
+        cause = "l'agent n'a pas pu joindre le réseau : vérifiez la connexion, puis réessayez."
+    else:
+        cause = ""
+    excerpt = " | ".join(l[:160] for l in useful[-3:])
+    return cause, excerpt, "\n".join(useful[-12:])[-1500:]

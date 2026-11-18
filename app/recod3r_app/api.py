@@ -45,6 +45,7 @@ class App:
         self.started, self.finished_secs, self.message = None, 0.0, ""
         self.item_done, self.order, self.out, self.todo, self.done = {}, [], None, [], []
         self.agent_used, self.err, self.manual, self.orch = None, None, False, None
+        self.error_log = ""
         self.globbed = False  # le scan global du système n'a lieu que sur demande explicite
 
     # ------------------------------------------------------------ état
@@ -59,7 +60,7 @@ class App:
                 "items": self.items, "totals": totals(self.items, self.params), "orchestration": self.orch,
                 "progress": {"pct": self.pct, "written": self.written, "total": self.total, "elapsed": elapsed, "message": self.message, "agent": self.agent_used,
                              "items": [{"slug": i["slug"], "name": i["name"], "done": self.item_done.get(i["slug"], False)} for i in self.items if i["selected"]]},
-                "out": self.out, "done": self.done, "todo": self.todo, "manual": self.manual, "error": self.err, "global": self.globbed,
+                "out": self.out, "done": self.done, "todo": self.todo, "manual": self.manual, "error": self.err, "error_log": self.error_log, "global": self.globbed,
             }
 
     def do_scan(self, p, force=(), glob=None):
@@ -185,6 +186,7 @@ class App:
                 self.params = engine.make_params(b["params"])
                 self.params["extra"] = extra
             self.phase, self.orch, self.pct, self.written, self.started = "converting", None, 0, 0, time.monotonic()
+            self.error_log = ""
             self.err, self.message = None, "Préparation…"
         pref = b.get("agent") if isinstance(b.get("agent"), str) else None
         threading.Thread(target=self._run_conversion, args=(pref,), daemon=True).start()
@@ -247,23 +249,24 @@ class App:
             pfile.write_text(prompt, encoding="utf-8")
         except OSError:
             pass
-        agent = agents.pilotable(pref)
+        chain = agents.pilotables(pref)
+        agent = chain[0] if chain else None
         self._set(agent_used=agent)
         manual = False
         if agent is None:
             manual = True
             self._set(message="Aucun CLI d'IA pilotable détecté : squelettes et briefs prêts à confier à votre IA")
         else:
-            try:
-                child = agents.spawn(agent, pfile, run)
-            except Exception as e:  # noqa: BLE001
-                manual = True
-                self._set(err="lancement de %s impossible : %s" % (agent, e))
-                child = None
-            if child is not None:
-                self._set(message="L'IA rédige les scripts en une seule tâche…")
-                timeout = int(os.environ.get("RECOD3R_TIMEOUT", "3600") or 3600)
-                t0, exit_ok = time.monotonic(), True
+            timeout = int(os.environ.get("RECOD3R_TIMEOUT", "3600") or 3600)
+            problems = []
+            for k, agent in enumerate(chain):
+                self._set(agent_used=agent, message="L'IA (%s) rédige les scripts en une seule tâche…" % agent)
+                try:
+                    child = agents.spawn(agent, pfile, run)
+                except Exception as e:  # noqa: BLE001
+                    problems.append("%s : lancement impossible (%s)" % (agent, e))
+                    continue
+                t0, exit_ok, killed = time.monotonic(), True, False
                 while True:
                     time.sleep(0.4)
                     n = sum(1 for f in forged if forge.written(f["script"]))
@@ -278,15 +281,24 @@ class App:
                         break
                     if time.monotonic() - t0 > timeout:
                         child.kill()
-                        self._set(err="délai dépassé : l'IA a été arrêtée")
+                        killed = True
                         break
                 n = sum(1 for f in forged if forge.written(f["script"]))
-                with self.lock:
-                    no_err = self.err is None
-                if (not exit_ok or n < total) and no_err:
-                    hint = " Pour agy : lancez `agy` une fois en interactif pour vous connecter, puis réessayez." if agent == "agy" else ""
-                    tail = agents.log_tail(run, 240)
-                    self._set(err="l'IA (%s) n'a écrit que %d script(s) sur %d.%s%s" % (agent, n, total, hint, (" Journal : " + tail) if tail else ""))
+                if n >= total and exit_ok and not killed:
+                    problems = []
+                    break
+                cause, excerpt, log = agents.diagnose(agent, run)
+                msg = "l'IA (%s) n'a écrit que %d script(s) sur %d" % (agent, n, total)
+                msg += " (délai dépassé)" if killed else ""
+                msg += ". " + (cause or ("Dernier message : " + excerpt if excerpt else "Aucun message d'erreur dans le journal."))
+                problems.append(msg)
+                self._set(error_log=log)
+                if n > 0 or killed:  # du travail a été fait : pas de repli, on livre ce qui existe
+                    break
+                if k + 1 < len(chain):  # repli automatique sur l'agent suivant (uniquement quand rien n'a été choisi explicitement)
+                    self._set(message="%s indisponible, essai avec %s…" % (agent, chain[k + 1]))
+            if problems:
+                self._set(err=" — ".join(problems))
         out = forge.out_dir()
         try:
             d = forge.deliver(out, forged, params)

@@ -125,7 +125,7 @@ function finish(){show(4);$('pipe').classList.toggle('hide',!S.done.length);$('o
  anim($('d1'),S.done.length,v=>Math.round(v));anim($('d2'),tok,v=>big(v));anim($('d3'),tok/1e6*p.eur_per_mtok,v=>fr(v,v<100?2:0)+' €');$('out').textContent=S.out||'';
  let n='';if(S.manual)n+=`<div class="warn">Aucun CLI d'IA pilotable n'a été détecté : les squelettes et briefs sont dans <b>a_completer/</b>. Donnez <b>PROMPT.md</b> à votre IA, elle écrira les scripts en une passe.</div>`;
  else if(S.todo.length)n+=`<div class="warn">${S.todo.length} script(s) non écrits : voir <b>a_completer/</b>.</div>`;
- if(S.error)n+=`<div class="warn">${esc(S.error)}</div>`;$('note').innerHTML=n}
+ if(S.error)n+=`<div class="warn" style="overflow-wrap:anywhere">${esc(S.error)}${S.error_log?`<details style="margin-top:8px"><summary style="cursor:pointer">Journal de l'agent</summary><pre style="white-space:pre-wrap;overflow-wrap:anywhere;font-size:12px;max-height:180px;overflow:auto;margin:8px 0 0">${esc(S.error_log)}</pre></details>`:''}</div>`;$('note').innerHTML=n}
 $('op').onclick=()=>api('open');
 $('sg').onclick=async()=>{show(1);S=await api('scan',{params:par(),global:true});show(2);econ()};$('sa').onclick=async()=>{S=await api('selection',{all:'auto'});econ()};$('st2').onclick=async()=>{S=await api('selection',{all:'tous'});econ()};$('sn').onclick=async()=>{S=await api('selection',{all:'aucun'});econ()};
 // ajout manuel de skills (chemin, fichiers, collage, glisser-déposer)
