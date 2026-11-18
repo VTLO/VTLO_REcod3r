@@ -1,5 +1,6 @@
 """Détection des CLI d'IA et lancement non interactif (une seule tâche d'écriture).
-Compatibles : Claude Code, Gemini CLI, Antigravity CLI (agy), Codex CLI — ou toute commande via RECOD3R_AGENT_CMD."""
+Agent principal : Antigravity CLI (agy). Secondaires : Claude Code, Codex CLI — ou toute commande via RECOD3R_AGENT_CMD.
+Gemini CLI (obsolète) n'est plus piloté : agy le remplace."""
 import os
 import re
 import shutil
@@ -10,9 +11,8 @@ from .engine import home, redact, which
 
 # (clé, libellé, binaires possibles, chemin de config, pilotable sans interface)
 AGENTS = [
-    ("claude", "Claude Code", ["claude"], ".claude", True),
-    ("gemini", "Gemini CLI", ["gemini"], ".gemini/settings.json", True),
     ("agy", "Antigravity CLI (agy)", ["agy", "antigravity"], ".gemini/antigravity-cli", True),
+    ("claude", "Claude Code", ["claude"], ".claude", True),
     ("codex", "Codex CLI", ["codex"], ".codex", True),
 ]
 
@@ -43,10 +43,15 @@ def detect():
     return out
 
 
+GEMINI_OBSOLETE = "Gemini CLI est obsolète et n'est plus piloté : utilisez agy (Antigravity CLI), `--agent agy`."
+
+
 def pilotables(prefer=None):
     """Agents pilotables, dans l'ordre d'essai (celui demandé seul ; sinon tous ceux détectés, pour un repli automatique)."""
     if os.environ.get("RECOD3R_AGENT_CMD", "").strip():
         return [prefer or "custom"]
+    if prefer == "gemini":
+        return []  # obsolète : voir GEMINI_OBSOLETE
     return [a["key"] for a in detect() if a["headless"] and (prefer is None or prefer == a["key"])]
 
 
@@ -76,8 +81,6 @@ def spawn(agent, prompt_file, cwd):
             raise FileNotFoundError("CLI introuvable")
         if agent == "claude":
             cmd = [b, "-p", prompt, "--permission-mode", "acceptEdits", "--allowedTools", "Read,Write,Edit"]
-        elif agent == "gemini":
-            cmd = [b, "-p", prompt, "--yolo"]
         elif agent == "agy":
             # sans cet indicateur, les approbations d'outils sont refusées en silence ; -p consomme l'argument suivant : prompt en dernier
             cmd = [b, "--dangerously-skip-permissions"] + (["--sandbox"] if os.environ.get("RECOD3R_AGY_SANDBOX") == "1" else []) + ["-p", prompt]
@@ -103,12 +106,11 @@ def log_tail(cwd, n):
 
 
 LOGIN_HINT = {
-    "gemini": "Gemini CLI n'est pas connecté en mode non interactif : lancez `gemini` une fois pour vous connecter, ou définissez GEMINI_API_KEY (clé gratuite sur aistudio.google.com) puis réessayez.",
     "claude": "Claude Code n'est pas connecté : lancez `claude` une fois pour vous connecter (ou `claude setup-token`), puis réessayez.",
     "agy": "agy n'est pas connecté : lancez `agy` une fois en interactif pour vous connecter, puis réessayez.",
     "codex": "Codex n'est pas connecté : lancez `codex login`, puis réessayez.",
 }
-RX_AUTH = re.compile(r"(_doSetupUser|setupUser|authenticat|not logged|log ?in|sign ?in|api[_ -]?key|credential|oauth|unauthori[sz]ed|\b40[13]\b|GEMINI_API_KEY|ANTHROPIC_API_KEY|please run)", re.I)
+RX_AUTH = re.compile(r"(_doSetupUser|setupUser|authenticat|not logged|log ?in|sign ?in|api[_ -]?key|credential|oauth|unauthori[sz]ed|\b40[13]\b|ANTHROPIC_API_KEY|please run)", re.I)
 RX_NET = re.compile(r"(ENOTFOUND|ECONNREFUSED|ECONNRESET|ETIMEDOUT|fetch failed|network|getaddrinfo|EAI_AGAIN)", re.I)
 RX_QUOTA = re.compile(r"(quota|rate.?limit|\b429\b|RESOURCE_EXHAUSTED|overloaded)", re.I)
 RX_STACK = re.compile(r"(^\s*at\s|node:internal|\.m?js:\d+|node_modules|^\s*\^+\s*$|file:///)")

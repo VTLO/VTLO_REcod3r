@@ -1,5 +1,5 @@
 #!/bin/sh
-# VTLO_REcod3r (application, Python) — installation en une commande, à coller dans un terminal ou dans agy / Claude Code / Gemini CLI / Codex :
+# VTLO_REcod3r (application, Python) — installation en une commande, à coller dans un terminal ou dans agy (Antigravity CLI) / Claude Code / Codex :
 #   curl -fsSL https://raw.githubusercontent.com/VTLO/VTLO_REcod3r/main/install-app.sh | sh
 # Prérequis : python3 (3.8+) et git. Aucune dépendance à installer, aucune compilation.
 set -eu

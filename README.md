@@ -18,7 +18,7 @@ VTLO_REcod3r est **la prochaine avancée de votre façon de coder et de raisonne
 
 ## ⚡ Installation en une commande
 
-**Linux · macOS · Android (Termux)** — à coller dans un terminal, ou directement dans agy, Claude Code, Gemini CLI, Codex :
+**Linux · macOS · Android (Termux)** — à coller dans un terminal, ou directement dans **agy (Antigravity CLI)**, Claude Code ou Codex :
 
 ```sh
 curl -fsSL https://raw.githubusercontent.com/VTLO/VTLO_REcod3r/main/install-app.sh | sh
@@ -32,7 +32,7 @@ irm https://raw.githubusercontent.com/VTLO/VTLO_REcod3r/main/install-app.ps1 | i
 
 **Déjà installé ? Mise à jour :** `recod3r update` (ou relancez la commande ci-dessus).
 
-Ensuite : tapez `recod3r` (application) ou `/recod3r` dans votre CLI d'IA — compatible **agy (Antigravity CLI)**, Claude Code, Gemini CLI et Codex. Python 3.8+ et git suffisent. Détails dans [Installer en une commande](#installer-en-une-commande).
+Ensuite : tapez `recod3r` (application) ou `/recod3r` dans votre CLI d'IA — pensé pour **agy (Antigravity CLI)**, compatible Claude Code et Codex (Gemini CLI, obsolète, n'est plus piloté). Python 3.8+ et git suffisent. Détails dans [Installer en une commande](#installer-en-une-commande).
 
 ---
 
@@ -44,12 +44,12 @@ Une application **autonome et multiplateforme** : elle analyse votre système, v
 
 **Ce qu'elle fait**
 
-1. **Scanne** votre machine avec les outils habituels : skills, commandes et prompts de Claude, Gemini CLI, Codex, agy… plus les dossiers ou archives `.zip` que vous ajoutez.
+1. **Scanne** votre machine avec les outils habituels : skills, commandes et prompts d'agy, Claude Code, Codex… (et les anciens dossiers Gemini) plus les dossiers ou archives `.zip` que vous ajoutez.
 2. **Chiffre l'économie** pour chaque élément : **tokens, euros, durée**, nombre de scripts, amortissement. Les hypothèses (utilisateurs, usages par mois, prix du million de tokens) se règlent par curseurs et le rapport se recalcule en direct.
 3. **Ne scanne rien au lancement** : sur l'écran titre, vous choisissez le **scan global** de votre système ou vos **champs manuels** (fichier, dossier avec ses annexes, `.zip`, chemin, collage). Cochez ensuite les skills à convertir. En terminal : `--add CHEMIN` (manuel, sans scan du système), `--global`, `--only skill1,skill2`, `--all`.
 4. **Une seule validation** : **OK** ou **IGNORER**.
-5. **Convertit tout d'un coup**, avec l'avancement de **0 à 100 % en direct**, par l'IA de votre CLI (agy, Claude Code, Gemini CLI, Codex), jusqu'à ce que les livrables soient prêts.
-6. **Livre** un dossier prêt à l'emploi : `scripts/` (code à lancer), `skills/` (skills légers **avec leurs annexes — scripts et références — embarquées automatiquement**), `commandes/` (Claude, Gemini, Codex/agy), `LISEZMOI.md`. Aucun test imposé : la vérification, c'est l'usage réel.
+5. **Convertit tout d'un coup**, avec l'avancement de **0 à 100 % en direct**, par l'IA de votre CLI (**agy** en priorité, puis Claude Code, Codex), jusqu'à ce que les livrables soient prêts.
+6. **Livre** un dossier prêt à l'emploi : `scripts/` (code à lancer), `skills/` (skills légers **avec leurs annexes — scripts et références — embarquées automatiquement**), `commandes/` (Claude, Codex/agy), `LISEZMOI.md`. Aucun test imposé : la vérification, c'est l'usage réel.
 7. **Vous propose l'orchestration** : un clic (ou `--orchestrer`) et vos scripts s'enchaînent en **pipeline complet prêt à l'emploi** ; l'IA n'est appelée qu'aux points de décision.
 
 <table>
@@ -66,7 +66,6 @@ Voir l'encadré **⚡ Installation en une commande** en haut de page : l'applica
 |---|---|---|---|
 | **agy** (Antigravity CLI) | ✔ | `agy --dangerously-skip-permissions -p …` | `~/.gemini/antigravity-cli/skills/` |
 | Claude Code | ✔ | `claude -p …` | `~/.claude/skills/` + `commands/` |
-| Gemini CLI | ✔ | `gemini -p … --yolo` | `~/.gemini/skills/` + `commands/` |
 | Codex CLI | ✔ | `codex exec …` | `~/.codex/prompts/` |
 
 Avec agy : lancez `agy` une fois pour vous connecter, puis `recod3r` fait le reste. Dans l'invite de votre CLI d'IA, vous pouvez aussi coller : *« Installe VTLO_REcod3r en exécutant : curl -fsSL https://raw.githubusercontent.com/VTLO/VTLO_REcod3r/main/install-app.sh | sh »*.

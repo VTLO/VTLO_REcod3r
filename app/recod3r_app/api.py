@@ -250,6 +250,8 @@ class App:
         except OSError:
             pass
         chain = agents.pilotables(pref)
+        if pref == "gemini" and not os.environ.get("RECOD3R_AGENT_CMD", "").strip():
+            self._set(err=agents.GEMINI_OBSOLETE)
         agent = chain[0] if chain else None
         self._set(agent_used=agent)
         manual = False

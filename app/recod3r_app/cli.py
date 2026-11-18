@@ -162,11 +162,11 @@ HELP = """VTLO_REcod3r %s
   recod3r                  ouvre l'application (interface visuelle)
   recod3r scan [--add D]   rapport dans le terminal (--json)
   recod3r convert --yes    analyse + conversion avec 0–100 %% en direct
-  recod3r integrer         ajoute /recod3r dans agy, Claude Code, Gemini CLI, Codex
+  recod3r integrer         ajoute /recod3r dans agy (principal), Claude Code, Codex
   recod3r update           met l'outil à jour (git pull) et rafraîchit /recod3r
   recod3r orchestrer       génère l'orchestration des scripts livrés
 
-Options : --agent claude|gemini|agy|codex · --add FICHIER_DOSSIER_OU_ZIP (répétable, = --dir ; sans scan du système) · --global (scanner aussi le système) · --only skill1,skill2 (choix manuel)
+Options : --agent agy|claude|codex · --add FICHIER_DOSSIER_OU_ZIP (répétable, = --dir ; sans scan du système) · --global (scanner aussi le système) · --only skill1,skill2 (choix manuel)
           --all (tout convertir) · --orchestrer (pipeline sans question) · --out DOSSIER · --users N · --price EUR_PAR_MTOK · --uses N
           --port N · --no-open · --fenetre (fenêtre native si pywebview)
 """
@@ -198,7 +198,7 @@ def main(argv=None):
     elif cmd == "integrer":
         r = integrate.integrer(arg_val(args, "--agent"))
         if not r:
-            print("Aucun CLI d'IA détecté (claude, gemini, agy, codex). Utilisez --agent NOM pour forcer.")
+            print("Aucun CLI d'IA détecté (agy, claude, codex). Utilisez --agent NOM pour forcer.")
         else:
             print("recod3r est maintenant disponible dans vos CLI d'IA :")
             for f in r:

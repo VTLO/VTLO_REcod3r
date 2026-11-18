@@ -9,13 +9,13 @@ python3 -m recod3r_app scan --add mes-skills.zip   # uniquement vos ajouts manue
 python3 -m recod3r_app convert --yes         # 0–100 % en direct dans le terminal
 python3 -m recod3r_app update                # met l'outil à jour (git pull) et rafraîchit /recod3r
 python3 -m recod3r_app orchestrer            # orchestration des scripts livrés
-python3 -m recod3r_app integrer              # ajoute /recod3r dans agy, Claude Code, Gemini CLI, Codex
+python3 -m recod3r_app integrer              # ajoute /recod3r dans agy (principal), Claude Code, Codex
 ```
 
 Installation de la commande `recod3r` : `curl -fsSL https://raw.githubusercontent.com/VTLO/VTLO_REcod3r/main/install-app.sh | sh` (ou `pipx install "git+https://github.com/VTLO/VTLO_REcod3r#subdirectory=app"`).
 Fenêtre native facultative : `pip install pywebview` puis `recod3r --fenetre`.
 
-Options : `--agent claude|gemini|agy|codex` · `--add CHEMIN` (répétable) · `--only skill1,skill2` · `--all` · `--orchestrer` · `--out DOSSIER` · `--users N` · `--price EUR_PAR_MTOK` · `--uses N` · `--port N` · `--no-open`.
+Options : `--agent agy|claude|codex` · `--add CHEMIN` (répétable) · `--only skill1,skill2` · `--all` · `--orchestrer` · `--out DOSSIER` · `--users N` · `--price EUR_PAR_MTOK` · `--uses N` · `--port N` · `--no-open`.
 
 Variables : `RECOD3R_OUT` (dossier livré), `RECOD3R_AGENT_CMD` (commande d'IA, `{prompt_file}`), `RECOD3R_HOME`, `RECOD3R_DIR`, `RECOD3R_TIMEOUT`, `ANTIGRAVITY_CLI_ALIAS`.
 
