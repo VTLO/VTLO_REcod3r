@@ -45,6 +45,7 @@ class App:
         self.started, self.finished_secs, self.message = None, 0.0, ""
         self.item_done, self.order, self.out, self.todo, self.done = {}, [], None, [], []
         self.agent_used, self.err, self.manual, self.orch = None, None, False, None
+        self.globbed = False  # le scan global du système n'a lieu que sur demande explicite
 
     # ------------------------------------------------------------ état
     def state(self):
@@ -58,20 +59,25 @@ class App:
                 "items": self.items, "totals": totals(self.items, self.params), "orchestration": self.orch,
                 "progress": {"pct": self.pct, "written": self.written, "total": self.total, "elapsed": elapsed, "message": self.message, "agent": self.agent_used,
                              "items": [{"slug": i["slug"], "name": i["name"], "done": self.item_done.get(i["slug"], False)} for i in self.items if i["selected"]]},
-                "out": self.out, "done": self.done, "todo": self.todo, "manual": self.manual, "error": self.err,
+                "out": self.out, "done": self.done, "todo": self.todo, "manual": self.manual, "error": self.err, "global": self.globbed,
             }
 
-    def do_scan(self, p, force=()):
+    def do_scan(self, p, force=(), glob=None):
+        """glob=True : scan global du système (sur demande) ; None : conserve le choix précédent ; sinon, uniquement les ajouts manuels."""
         p = engine.make_params(p)
         p["extra"] = [e for e in p["extra"] if e.strip()]
-        assets = engine.collect(Path.cwd(), p["extra"])
+        with self.lock:
+            if glob is True:
+                self.globbed = True
+            use_global = self.globbed
+        assets = engine.collect(Path.cwd(), p["extra"], use_global)
         items = engine.analyze_all(assets, p)
         with self.lock:
             prev = {i["id"]: i["selected"] for i in self.items}
             for i in items:
                 if i["id"] in prev:
                     i["selected"] = prev[i["id"]]
-                elif i["agent"] == "extra" and i["path"] in force:
+                elif i["agent"] == "extra" and any(i["path"] == f or i["path"].startswith(f + os.sep) for f in force):
                     i["selected"] = True
             self.params, self.assets, self.items, self.phase, self.err, self.pct = p, assets, items, "scanned", None, 0
             self.item_done, self.out, self.done, self.todo, self.orch = {}, None, [], [], None
@@ -89,7 +95,8 @@ class App:
         return self.state()
 
     def r_scan(self, b):
-        return self.do_scan(b.get("params") or {})
+        # scan explicite : global (système) si demandé, sinon uniquement les ajouts manuels déjà déclarés
+        return self.do_scan(b.get("params") or {}, glob=True if b.get("global") else None)
 
     def r_ajouter(self, b):
         with self.lock:
@@ -99,18 +106,45 @@ class App:
         for a in add:
             if a not in p["extra"]:
                 p["extra"].append(a)
-        return self.do_scan(p, add)
+        return self.do_scan(p, [a for a in add if Path(a).is_file()])
 
     def r_televerser(self, b):
+        """Téléversement depuis l'interface : un skill collé {name,text} ou des fichiers/dossiers {files:[{path,b64}]} (annexes comprises)."""
+        d = forge.state_dir() / "ajouts"
+        try:
+            d.mkdir(parents=True, exist_ok=True)
+        except OSError as e:
+            return {"error": str(e)}
+        if isinstance(b.get("files"), list):
+            import base64
+            up = d / ("envoi-%d" % int(time.time() * 1000))
+            n = 0
+            for f in b["files"][:600]:
+                rel = Path(str(f.get("path") or "").replace("\\", "/"))
+                if not rel.parts or rel.is_absolute() or ".." in rel.parts or any(c.startswith(".") or c in engine.SKIP_DIRS for c in rel.parts):
+                    continue
+                try:
+                    data = base64.b64decode(f.get("b64") or "")
+                    t = up / rel
+                    t.parent.mkdir(parents=True, exist_ok=True)
+                    t.write_bytes(data)
+                    n += 1
+                except (ValueError, OSError):
+                    pass
+            if n == 0:
+                return {"error": "aucun fichier exploitable"}
+            with self.lock:
+                p = dict(self.params)
+                p["extra"] = list(p["extra"])
+            p["extra"].append(str(up))
+            return self.do_scan(p, [str(up)])
         name, text = str(b.get("name") or "skill"), str(b.get("text") or "")
         if not text.strip():
             return {"error": "contenu vide"}
         safe = "".join(c if (c.isalnum() or c in "-_.") else "-" for c in name)
         if "." not in safe:
             safe += ".md"
-        d = forge.state_dir() / "ajouts"
         try:
-            d.mkdir(parents=True, exist_ok=True)
             f = d / safe
             f.write_text(text, encoding="utf-8")
         except OSError as e:

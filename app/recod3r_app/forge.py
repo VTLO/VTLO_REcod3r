@@ -5,11 +5,7 @@ import shutil
 import stat
 from pathlib import Path
 
-from .engine import MARK, VERSION, home, redact
-
-
-def state_dir():
-    return Path(os.environ.get("RECOD3R_DIR") or (home() / ".vtlo_recod3r"))
+from .engine import MARK, VERSION, home, redact, state_dir  # noqa: F401
 
 
 def out_dir():
@@ -106,10 +102,35 @@ def _chmod_x(p):
         pass
 
 
+def copy_annexes(a, dest):
+    """Copie les annexes du skill (scripts, références, modèles…) dans `dest` en gardant l'arborescence. Retourne les chemins copiés."""
+    src, done = a.get("annex_dir"), []
+    if not src:
+        return done
+    src = Path(src)
+    for r in a["refs"]:
+        f = src / r
+        t = (Path(dest) / r)
+        if not f.is_file() or ".." in Path(r).parts:
+            continue
+        try:
+            t.parent.mkdir(parents=True, exist_ok=True)
+            shutil.copyfile(f, t)
+            if f.stat().st_mode & stat.S_IXUSR:
+                _chmod_x(t)
+            done.append(r)
+        except OSError:
+            pass
+    return done
+
+
 def brief(a, it, ext):
     steps = "\n".join("- " + s for s in it["code_steps"])
     ai = "\n".join("- " + s for s in it["ai_steps"]) if it["ai_steps"] else "- aucune"
-    refs = ("\n## Fichiers de référence du skill (à intégrer dans le script)\n" + "\n".join("- " + r for r in a["refs"]) + "\n") if a["refs"] else ""
+    refs = ("\n## Annexes du skill (dossier `annexes/` à côté de ce brief, lecture seule)\n"
+            "Elles sont livrées automatiquement avec le skill : lis-les et intègre ce qui doit l'être (constantes, tables, schémas, gabarits) ; "
+            "les scripts existants se réutilisent ou s'appellent depuis ton script plutôt que de les réécrire.\n"
+            + "\n".join("- `annexes/%s`" % r for r in a["refs"]) + "\n") if a["refs"] else ""
     orig = redact(a["body"])[:9000]
     return (
         "# Brief de codage : transformer « {name} » en script de qualité professionnelle ({lang})\n\n"
@@ -139,6 +160,7 @@ def scaffold(run, a, it):
     script = d / "scripts" / ("%s.%s" % (it["slug"], ext))
     script.write_text(txt, encoding="utf-8")
     _chmod_x(script)
+    copy_annexes(a, d / "annexes")
     (d / "BRIEF.md").write_text(brief(a, it, ext), encoding="utf-8")
     return {"slug": it["slug"], "name": a["name"], "dir": d, "script": script, "ext": ext, "lang": it["lang"], "asset": a, "item": it}
 
@@ -157,13 +179,14 @@ def written(script):
         return False
 
 
-def thin(slug, rel, ext, desc, kind):
+def thin(slug, rel, ext, desc, kind, annexes=()):
     body = ("- code 0 : rapporte le résultat.\n- code 1 : rapporte stderr et arrête.\n- code 3 : stdout est un JSON `needs_ai` ; tranche UNIQUEMENT ce point, "
             "puis relance avec `RECOD3R_AI_ANSWER='<json>'` (le script revalide ta réponse).\n")
     run = "%s %s" % (runner_for(ext), rel)
     d = desc.replace("\n", " ")[:150]
     if kind == "skill":
-        return "---\nname: %s\ndescription: %s\n---\nExécute `%s <args>` et lis UNIQUEMENT sa sortie standard. Ne refais pas ses étapes à la main.\n%s" % (slug, d, run, body)
+        ann = ("\nAnnexes du skill (dans ce dossier) : %s\n" % ", ".join("`%s`" % r for r in list(annexes)[:12])) if annexes else ""
+        return "---\nname: %s\ndescription: %s\n---\nExécute `%s <args>` et lis UNIQUEMENT sa sortie standard. Ne refais pas ses étapes à la main.\n%s%s" % (slug, d, run, body, ann)
     if kind == "claude":
         return "---\ndescription: %s\nallowed-tools: Bash(%s:*)\n---\nRésultat du script :\n!`%s $ARGUMENTS`\n\nN'agis que sur cette sortie.\n%s" % (d, runner_for(ext).split(" ")[0], run, body)
     if kind == "gemini":
@@ -175,7 +198,7 @@ def deliver(out, forged, p):
     out = Path(out)
     for sub in ("scripts", "skills", "commandes/claude", "commandes/gemini", "commandes/codex-agy"):
         (out / sub).mkdir(parents=True, exist_ok=True)
-    done, todo = [], []
+    done, todo, n_annex = [], [], {}
     outt = tilde(out)
     for f in forged:
         a = f["asset"]
@@ -185,7 +208,9 @@ def deliver(out, forged, p):
             shutil.copyfile(f["script"], dest)
             _chmod_x(dest)
             (out / "skills" / f["slug"]).mkdir(parents=True, exist_ok=True)
-            (out / "skills" / f["slug"] / "SKILL.md").write_text(thin(f["slug"], rel, f["ext"], a["description"], "skill"), encoding="utf-8")
+            ann = copy_annexes(a, out / "skills" / f["slug"])  # scripts et références du skill, inclus automatiquement
+            n_annex[f["slug"]] = len(ann)
+            (out / "skills" / f["slug"] / "SKILL.md").write_text(thin(f["slug"], rel, f["ext"], a["description"], "skill", ann), encoding="utf-8")
             (out / "commandes/claude" / (f["slug"] + ".md")).write_text(thin(f["slug"], rel, f["ext"], a["description"], "claude"), encoding="utf-8")
             (out / "commandes/gemini" / (f["slug"] + ".toml")).write_text(thin(f["slug"], rel, f["ext"], a["description"], "gemini"), encoding="utf-8")
             (out / "commandes/codex-agy" / (f["slug"] + ".md")).write_text(thin(f["slug"], rel, f["ext"], a["description"], "codex"), encoding="utf-8")
@@ -195,6 +220,7 @@ def deliver(out, forged, p):
             (d / "scripts").mkdir(parents=True, exist_ok=True)
             shutil.copyfile(f["dir"] / "BRIEF.md", d / "BRIEF.md")
             shutil.copyfile(f["script"], d / "scripts" / f["script"].name)
+            copy_annexes(a, d / "annexes")
             todo.append(f["slug"])
     tok = eur = sec = 0.0
     rows = ""
@@ -206,11 +232,11 @@ def deliver(out, forged, p):
         tok += m
         eur += m / 1e6 * p["eur_per_mtok"]
         sec += max(it["ai_sec_per_use"] - it["script_sec_per_use"], 0.0) * p["uses_per_month"] * p["users"]
-        rows += "| `%s` | %s | `%s scripts/%s.%s` | %s tokens/usage |\n" % (f["slug"], f["lang"], runner_for(f["ext"]), f["slug"], f["ext"], fmt_n(it["save_per_use"]))
+        rows += "| `%s` | %s | `%s scripts/%s.%s` | %s tokens/usage | %s |\n" % (f["slug"], f["lang"], runner_for(f["ext"]), f["slug"], f["ext"], fmt_n(it["save_per_use"]), ("%d dans `skills/%s/`" % (n_annex.get(f["slug"], 0), f["slug"])) if n_annex.get(f["slug"]) else "—")
     todo_txt = ("\n## À compléter\n%d script(s) non écrits : voir `a_completer/<nom>/BRIEF.md` (à donner à votre IA).\n" % len(todo)) if todo else ""
     md = (
         "# Scripts VTLO_REcod3r\n\nGénéré par VTLO_REcod3r %s. Chaque script remplace les étapes mécaniques d'un de vos skills ; l'IA n'intervient plus que pour les décisions (code de sortie 3).\n\n"
-        "| Script | Langage | Lancer | Économie |\n|---|---|---|---|\n%s\n"
+        "| Script | Langage | Lancer | Économie | Annexes incluses |\n|---|---|---|---|---|\n%s\n"
         "Estimation (hypothèses : %.0f usages/mois, %.0f utilisateur(s), %.2f €/M tokens) : ≈ %.0f tokens, ≈ %.2f €, ≈ %.1f h par mois.\n\n"
         "## Contrat commun\n- entrées : arguments, fichiers ou stdin · sortie : texte court, ou `--json`\n- codes : `0` ok · `1` échec · `2` usage · `3` décision IA requise (JSON `needs_ai`) ; relancez avec la réponse dans `RECOD3R_AI_ANSWER`.\n\n"
         "## Dans votre outil d'IA\n`skills/<nom>/SKILL.md` (skills légers) et `commandes/{claude,gemini,codex-agy}/` sont prêts à copier. Antigravity CLI (agy) : copiez `skills/<nom>` dans `~/.gemini/antigravity-cli/skills/` (global) ou `<projet>/.agents/skills/` (projet).\n\n"

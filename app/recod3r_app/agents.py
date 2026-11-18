@@ -64,7 +64,9 @@ def spawn(agent, prompt_file, cwd):
     kw = dict(cwd=str(cwd), stdin=subprocess.DEVNULL, stdout=log, stderr=subprocess.STDOUT)
     try:
         if custom:
-            return subprocess.Popen(custom.replace("{prompt_file}", str(prompt_file)), shell=True, **kw)
+            child = subprocess.Popen(custom.replace("{prompt_file}", str(prompt_file)), shell=True, **kw)
+            log.close()
+            return child
         b = bin_of(agent)
         if not b:
             raise FileNotFoundError("CLI introuvable")
@@ -79,7 +81,9 @@ def spawn(agent, prompt_file, cwd):
             cmd = [b, "exec", prompt]
         else:
             raise OSError("agent non pilotable")
-        return subprocess.Popen(cmd, **kw)
+        child = subprocess.Popen(cmd, **kw)
+        log.close()
+        return child
     except Exception:
         log.close()
         raise

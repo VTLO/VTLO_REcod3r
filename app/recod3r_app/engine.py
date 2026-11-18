@@ -54,6 +54,10 @@ def home():
     return Path(os.environ.get("RECOD3R_HOME") or os.environ.get("HOME") or os.environ.get("USERPROFILE") or ".")
 
 
+def state_dir():
+    return Path(os.environ.get("RECOD3R_DIR") or (home() / ".vtlo_recod3r"))
+
+
 def which(binary):
     return shutil.which(binary) is not None
 
@@ -198,7 +202,7 @@ def analyze(a, p):
     lang, why = pick_lang("%s %s" % (a["body"], a["description"]))
     ft = ("%s %s" % (a["body"], a["description"])).lower()
     families = [k for k, rx in FAMILIES_RX if rx.search(ft)]
-    convertible = save > 0.0 and not a["has_scripts"]
+    convertible = save > 0.0
     return {
         "id": "%s:%s:%s" % (a["agent"], a["kind"], a["name"]), "slug": slug(a["name"]), "agent": a["agent"], "kind": a["kind"],
         "name": a["name"], "path": a["path"], "tokens": a["tokens"], "codeable": None if codeable is None else rnd(codeable * 100) / 100,
@@ -207,7 +211,7 @@ def analyze(a, p):
         "lang": lang, "lang_why": why, "before_tokens": float(rnd(before)), "after_tokens": float(rnd(after)), "save_per_use": float(rnd(save)),
         "payback_uses": int(math.ceil((2500.0 + 2.0 * a["tokens"]) / save)) if save > 0.0 else None,
         "ai_sec_per_use": before / 1000.0 * p["ai_sec_per_ktok"], "script_sec_per_use": after / 1000.0 * p["ai_sec_per_ktok"] + p["script_sec"],
-        "convertible": convertible, "selected": convertible, "has_scripts": a["has_scripts"], "secrets": bool(RX_SECRET.search(a["body"])),
+        "convertible": convertible, "selected": convertible, "has_scripts": a["has_scripts"], "annexes": a["refs"], "secrets": bool(RX_SECRET.search(a["body"])),
         "families": families,
     }
 
@@ -255,7 +259,7 @@ def parse_toml_cmd(text):
     return desc, body
 
 
-def make_asset(agent, kind, name, path, text, has_scripts, refs):
+def make_asset(agent, kind, name, path, text, has_scripts, refs, annex_dir=None):
     if path.endswith(".toml"):
         d, b = parse_toml_cmd(text)
         fname = None
@@ -264,7 +268,7 @@ def make_asset(agent, kind, name, path, text, has_scripts, refs):
     if not b.strip():
         return None
     return {"agent": agent, "kind": kind, "tokens": est_tokens(b) + est_tokens(d), "name": fname or name, "path": path,
-            "description": d, "body": b, "has_scripts": has_scripts, "refs": refs}
+            "description": d, "body": b, "has_scripts": has_scripts, "refs": refs, "annex_dir": annex_dir}
 
 
 def read(p):
@@ -276,17 +280,38 @@ def read(p):
         return None
 
 
+ANNEX_MAX_FILES = 200
+ANNEX_MAX_BYTES = 3_000_000
+
+
 def skill_dir_info(md):
+    """Annexes d'un skill : tous les fichiers de son dossier (scripts, références, modèles…) sauf SKILL.md."""
     d = md.parent
-    sd = d / "scripts"
-    has_scripts = sd.is_dir() and any(sd.iterdir())
-    refs = []
-    for sub in ("references", "resources", "assets", "templates", "examples"):
+    files, total = [], 0
+    stack = [d]
+    while stack and len(files) < ANNEX_MAX_FILES:
+        cur = stack.pop()
         try:
-            refs += ["%s/%s" % (sub, e.name) for e in (d / sub).iterdir()]
+            entries = sorted(cur.iterdir())
         except OSError:
-            pass
-    return has_scripts, sorted(refs)[:60]
+            continue
+        for e in entries:
+            if e.name.startswith(".") or e.name in SKIP_DIRS:
+                continue
+            if e.is_dir():
+                stack.append(e)
+            elif e.is_file() and not (e == md or e.suffix == ".pyc"):
+                try:
+                    size = e.stat().st_size
+                except OSError:
+                    continue
+                if total + size > ANNEX_MAX_BYTES:
+                    continue
+                total += size
+                files.append(e.relative_to(d).as_posix())
+    files.sort()
+    has_scripts = any(f.split("/")[0] == "scripts" for f in files)
+    return has_scripts, files[:ANNEX_MAX_FILES]
 
 
 def sources(cwd):
@@ -329,13 +354,15 @@ def from_file(agent, kind, base, f, out, seen):
     if is_skill:
         hs, refs = skill_dir_info(f)
         name = f.parent.name
+        annex = str(f.parent) if refs else None
     else:
         try:
             rel = f.relative_to(base)
         except ValueError:
             rel = f
         name, hs, refs = str(rel.with_suffix("")).replace("/", ":").replace("\\", ":"), False, []
-    a = make_asset(agent, "skill" if is_skill else kind, name, str(f), text, hs, refs)
+        annex = None
+    a = make_asset(agent, "skill" if is_skill else kind, name, str(f), text, hs, refs, annex)
     if a:
         out.append(a)
 
@@ -379,9 +406,26 @@ def from_extra(spec, out, seen):
                 txt = z.read(n).decode("utf-8", errors="replace")
             except (KeyError, OSError):
                 txt = ""
-            refs = sorted(x[len(d):] for x in names if x.startswith(d) and not x.endswith("/") and not x.endswith("SKILL.md"))[:60]
+            refs = sorted(x[len(d):] for x in names if x.startswith(d) and not x.endswith("/") and not x.endswith("SKILL.md")
+                          and not any(c.startswith(".") or c in SKIP_DIRS for c in x[len(d):].split("/")))[:ANNEX_MAX_FILES]
             name = d.rstrip("/").rsplit("/", 1)[-1] or "skill"
-            a = make_asset("extra", "skill", name, "%s!%s" % (p, n), txt, False, refs)
+            annex = None
+            if refs:
+                cache = state_dir() / "annexes" / ("%s-%s" % (slug(p.stem), slug(name)))
+                for r in refs:
+                    info = z.getinfo(d + r)
+                    target = (cache / r).resolve()
+                    if info.file_size > ANNEX_MAX_BYTES or cache.resolve() not in target.parents:
+                        continue
+                    try:
+                        target.parent.mkdir(parents=True, exist_ok=True)
+                        target.write_bytes(z.read(d + r))
+                    except (OSError, KeyError):
+                        pass
+                refs = [r for r in refs if (cache / r).is_file()]
+                annex = str(cache) if refs else None
+            hs = any(r.split("/")[0] == "scripts" for r in refs)
+            a = make_asset("extra", "skill", name, "%s!%s" % (p, n), txt, hs, refs, annex)
             if a:
                 out.append(a)
         return
@@ -391,20 +435,22 @@ def from_extra(spec, out, seen):
         return
     files = []
     walk(p, 0, files)
+    skill_dirs = [f.parent for f in files if f.name == "SKILL.md"]
     for f in files:
-        if any(c in ATTACHED for c in f.parts):
-            continue
+        if f.name != "SKILL.md" and any(d in f.parents for d in skill_dirs):
+            continue  # annexe d'un skill : embarquée avec lui, pas un élément à part
         if f.name == "SKILL.md":
             from_file("extra", "skill", p, f, out, seen)
         else:
-            k = kind_from_path(f)
+            k = kind_from_path(f.relative_to(p))
             if k and (f.name.endswith(".md") or f.name.endswith(".toml")):
                 from_file("extra", k, p, f, out, seen)
 
 
-def collect(cwd, extra):
+def collect(cwd, extra, use_global=True):
+    """use_global=False : uniquement les ajouts manuels (aucun parcours des dossiers du système)."""
     out, seen = [], set()
-    for agent, kind, base, pats in sources(Path(cwd)):
+    for agent, kind, base, pats in (sources(Path(cwd)) if use_global else []):
         for pat in pats:
             for f in _glob_all("%s/%s" % (_glob.escape(str(base)), pat)):
                 fp = Path(f)

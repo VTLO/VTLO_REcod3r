@@ -27,7 +27,8 @@ def arg_val(a, k):
 
 
 def params_from(a):
-    p = {"extra": [a[i + 1] for i, x in enumerate(a) if x in ("--dir", "--add") and i + 1 < len(a)]}
+    extra = [a[i + 1] for i, x in enumerate(a) if x in ("--dir", "--add") and i + 1 < len(a)]
+    p = {"extra": extra}
     for k, f in (("users", "--users"), ("eur_per_mtok", "--price"), ("uses_per_month", "--uses")):
         v = arg_val(a, f)
         try:
@@ -35,7 +36,8 @@ def params_from(a):
                 p[k] = float(v)
         except ValueError:
             pass
-    return {"params": p}
+    # scan global du système : par défaut en commande terminal explicite, sauf si des ajouts manuels sont donnés (--add) ; --global le force
+    return {"params": p, "global": ("--global" in a) or not extra}
 
 
 def print_report(st):
@@ -136,15 +138,35 @@ def serve(app, port, open_browser, window=False):
         pass
 
 
+def update():
+    """Met l'outil à jour (git pull dans le dossier des sources) puis rafraîchit /recod3r dans les CLI d'IA."""
+    import subprocess
+    root = Path(__file__).resolve().parents[2]
+    if not (root / ".git").exists():
+        print("Installation hors dépôt git (pipx ?) : relancez  pipx upgrade vtlo-recod3r  ou  curl -fsSL https://raw.githubusercontent.com/VTLO/VTLO_REcod3r/main/install-app.sh | sh")
+        return 1
+    git = lambda *a: subprocess.run(["git", "-C", str(root)] + list(a), capture_output=True, text=True)  # noqa: E731
+    before = git("rev-parse", "--short", "HEAD").stdout.strip()
+    r = git("pull", "--ff-only")
+    if r.returncode != 0:
+        print("Mise à jour impossible : %s" % (r.stderr.strip() or r.stdout.strip()), file=sys.stderr)
+        return 1
+    after = git("rev-parse", "--short", "HEAD").stdout.strip()
+    print("VTLO_REcod3r déjà à jour (%s)." % after if before == after else "VTLO_REcod3r mis à jour : %s → %s" % (before, after))
+    subprocess.run([sys.executable, "-m", "recod3r_app", "integrer"], cwd=str(root / "app"), env=dict(os.environ, PYTHONPATH=str(root / "app")))
+    return 0
+
+
 HELP = """VTLO_REcod3r %s
 
   recod3r                  ouvre l'application (interface visuelle)
   recod3r scan [--add D]   rapport dans le terminal (--json)
   recod3r convert --yes    analyse + conversion avec 0–100 %% en direct
   recod3r integrer         ajoute /recod3r dans agy, Claude Code, Gemini CLI, Codex
+  recod3r update           met l'outil à jour (git pull) et rafraîchit /recod3r
   recod3r orchestrer       génère l'orchestration des scripts livrés
 
-Options : --agent claude|gemini|agy|codex · --add FICHIER_DOSSIER_OU_ZIP (répétable, = --dir) · --only skill1,skill2 (choix manuel)
+Options : --agent claude|gemini|agy|codex · --add FICHIER_DOSSIER_OU_ZIP (répétable, = --dir ; sans scan du système) · --global (scanner aussi le système) · --only skill1,skill2 (choix manuel)
           --all (tout convertir) · --orchestrer (pipeline sans question) · --out DOSSIER · --users N · --price EUR_PAR_MTOK · --uses N
           --port N · --no-open · --fenetre (fenêtre native si pywebview)
 """
@@ -191,6 +213,10 @@ def main(argv=None):
             print(e, file=sys.stderr)
             return 1
         print("Orchestration générée dans %s : orchestrer.sh / orchestrer.ps1 / orchestrer.txt (%d scripts)" % (forge.tilde(out), len(entries)))
+    elif cmd in ("update", "upgrade", "maj"):
+        return update()
+    elif cmd in ("version", "--version", "-v"):
+        print("VTLO_REcod3r %s" % engine.VERSION)
     elif cmd in ("help", "--help", "-h"):
         print(HELP % engine.VERSION)
     else:

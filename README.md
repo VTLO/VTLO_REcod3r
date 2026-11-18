@@ -30,6 +30,8 @@ curl -fsSL https://raw.githubusercontent.com/VTLO/VTLO_REcod3r/main/install-app.
 irm https://raw.githubusercontent.com/VTLO/VTLO_REcod3r/main/install-app.ps1 | iex
 ```
 
+**Déjà installé ? Mise à jour :** `recod3r update` (ou relancez la commande ci-dessus).
+
 Ensuite : tapez `recod3r` (application) ou `/recod3r` dans votre CLI d'IA — compatible **agy (Antigravity CLI)**, Claude Code, Gemini CLI et Codex. Python 3.8+ et git suffisent. Détails dans [Installer en une commande](#installer-en-une-commande).
 
 ---
@@ -44,10 +46,10 @@ Une application **autonome et multiplateforme** : elle analyse votre système, v
 
 1. **Scanne** votre machine avec les outils habituels : skills, commandes et prompts de Claude, Gemini CLI, Codex, agy… plus les dossiers ou archives `.zip` que vous ajoutez.
 2. **Chiffre l'économie** pour chaque élément : **tokens, euros, durée**, nombre de scripts, amortissement. Les hypothèses (utilisateurs, usages par mois, prix du million de tokens) se règlent par curseurs et le rapport se recalcule en direct.
-3. **Vous laisse choisir** : cochez les skills à convertir et **ajoutez les vôtres** (glisser-déposer, chemin, `.zip` ou collage direct). En terminal : `--add CHEMIN`, `--only skill1,skill2`, `--all`.
+3. **Ne scanne rien au lancement** : sur l'écran titre, vous choisissez le **scan global** de votre système ou vos **champs manuels** (fichier, dossier avec ses annexes, `.zip`, chemin, collage). Cochez ensuite les skills à convertir. En terminal : `--add CHEMIN` (manuel, sans scan du système), `--global`, `--only skill1,skill2`, `--all`.
 4. **Une seule validation** : **OK** ou **IGNORER**.
 5. **Convertit tout d'un coup**, avec l'avancement de **0 à 100 % en direct**, par l'IA de votre CLI (agy, Claude Code, Gemini CLI, Codex), jusqu'à ce que les livrables soient prêts.
-6. **Livre** un dossier prêt à l'emploi : `scripts/` (code à lancer), `skills/` (skills légers), `commandes/` (Claude, Gemini, Codex/agy), `LISEZMOI.md`. Aucun test imposé : la vérification, c'est l'usage réel.
+6. **Livre** un dossier prêt à l'emploi : `scripts/` (code à lancer), `skills/` (skills légers **avec leurs annexes — scripts et références — embarquées automatiquement**), `commandes/` (Claude, Gemini, Codex/agy), `LISEZMOI.md`. Aucun test imposé : la vérification, c'est l'usage réel.
 7. **Vous propose l'orchestration** : un clic (ou `--orchestrer`) et vos scripts s'enchaînent en **pipeline complet prêt à l'emploi** ; l'IA n'est appelée qu'aux points de décision.
 
 <table>

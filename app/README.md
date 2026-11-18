@@ -4,8 +4,10 @@ Moteur et serveur en **Python (bibliothèque standard uniquement)**, interface v
 
 ```sh
 python3 -m recod3r_app                       # ouvre l'interface (serveur local 127.0.0.1, jeton aléatoire)
-python3 -m recod3r_app scan --add mes-skills.zip
+python3 -m recod3r_app scan                  # scan global du système (jamais automatique au lancement de l'interface)
+python3 -m recod3r_app scan --add mes-skills.zip   # uniquement vos ajouts manuels (annexes incluses)
 python3 -m recod3r_app convert --yes         # 0–100 % en direct dans le terminal
+python3 -m recod3r_app update                # met l'outil à jour (git pull) et rafraîchit /recod3r
 python3 -m recod3r_app orchestrer            # orchestration des scripts livrés
 python3 -m recod3r_app integrer              # ajoute /recod3r dans agy, Claude Code, Gemini CLI, Codex
 ```
