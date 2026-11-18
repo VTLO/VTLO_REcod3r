@@ -1,0 +1,25 @@
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "vtlo-recod3r"
+version = "3.0.0"
+description = "VTLO_REcod3r : transforme en scripts les skills qui n'ont pas besoin d'IA (application autonome, Python sans dépendance)"
+readme = "README.md"
+requires-python = ">=3.8"
+license = { text = "GPL-3.0-or-later" }
+authors = [{ name = "VTLO" }]
+dependencies = []
+
+[project.optional-dependencies]
+fenetre = ["pywebview"]
+
+[project.scripts]
+recod3r = "recod3r_app.cli:main"
+
+[tool.setuptools]
+packages = ["recod3r_app"]
+
+[tool.setuptools.package-data]
+recod3r_app = ["ui/index.html"]

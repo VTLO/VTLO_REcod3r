@@ -1,9 +1,5 @@
 __pycache__/
 *.pyc
 .recod3r/
-app/target/
-app/src-tauri/target/
-app/src-tauri/gen/
-app/src-tauri/icons/
 __pycache__/
 *.pyc

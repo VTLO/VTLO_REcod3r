@@ -1,21 +1,20 @@
 # VTLO_REcod3r — application autonome
 
-Cœur **Rust** (`core/`), interface visuelle **HTML** (`ui/`), coque **Tauri 2** (`src-tauri/`) pour Linux, Windows, macOS, Android et iOS.
+Moteur et serveur en **Python (bibliothèque standard uniquement)**, interface visuelle **HTML** (`recod3r_app/ui/`). Python 3.8+.
 
 ```sh
-cargo build --release -p recod3r-app     # binaire autonome : target/release/recod3r
-./target/release/recod3r                 # ouvre l'interface (serveur local 127.0.0.1, jeton aléatoire)
-./target/release/recod3r scan --dir mes-skills.zip
-./target/release/recod3r convert --yes   # 0–100 % en direct dans le terminal
-./target/release/recod3r orchestrer      # option : orchestration des scripts livrés
+python3 -m recod3r_app                       # ouvre l'interface (serveur local 127.0.0.1, jeton aléatoire)
+python3 -m recod3r_app scan --add mes-skills.zip
+python3 -m recod3r_app convert --yes         # 0–100 % en direct dans le terminal
+python3 -m recod3r_app orchestrer            # orchestration des scripts livrés
+python3 -m recod3r_app integrer              # ajoute /recod3r dans agy, Claude Code, Gemini CLI, Codex
 ```
 
-Application fenêtrée (Tauri 2) :
+Installation de la commande `recod3r` : `curl -fsSL https://raw.githubusercontent.com/VTLO/VTLO_REcod3r/main/install-app.sh | sh` (ou `pipx install "git+https://github.com/VTLO/VTLO_REcod3r#subdirectory=app"`).
+Fenêtre native facultative : `pip install pywebview` puis `recod3r --fenetre`.
 
-```sh
-cd src-tauri && npx @tauri-apps/cli@2 icon icon-source.png && npx @tauri-apps/cli@2 build
-npx @tauri-apps/cli@2 android init && npx @tauri-apps/cli@2 android build   # Android (SDK + NDK)
-npx @tauri-apps/cli@2 ios init && npx @tauri-apps/cli@2 ios build          # iOS (macOS + Xcode)
-```
+Options : `--agent claude|gemini|agy|codex` · `--add CHEMIN` (répétable) · `--only skill1,skill2` · `--all` · `--orchestrer` · `--out DOSSIER` · `--users N` · `--price EUR_PAR_MTOK` · `--uses N` · `--port N` · `--no-open`.
 
-Variables : `RECOD3R_OUT` (dossier livré), `RECOD3R_AGENT_CMD` (commande d'IA, `{prompt_file}`), `RECOD3R_HOME`, `RECOD3R_TIMEOUT`.
+Variables : `RECOD3R_OUT` (dossier livré), `RECOD3R_AGENT_CMD` (commande d'IA, `{prompt_file}`), `RECOD3R_HOME`, `RECOD3R_DIR`, `RECOD3R_TIMEOUT`, `ANTIGRAVITY_CLI_ALIAS`.
+
+Test : `python3 app/tests/test_app.py`.

@@ -2,7 +2,7 @@
 
 <p align="center">
 <img alt="licence" src="https://img.shields.io/badge/licence-GPL--3.0-39ff88?style=for-the-badge">
-<img alt="moteur" src="https://img.shields.io/badge/moteur-Rust-37d6ff?style=for-the-badge">
+<img alt="moteur" src="https://img.shields.io/badge/moteur-Python-37d6ff?style=for-the-badge">
 <img alt="plateformes" src="https://img.shields.io/badge/Linux%20%C2%B7%20Windows%20%C2%B7%20macOS%20%C2%B7%20Android%20%C2%B7%20iOS-a56bff?style=for-the-badge">
 </p>
 
@@ -30,7 +30,7 @@ curl -fsSL https://raw.githubusercontent.com/VTLO/VTLO_REcod3r/main/install-app.
 irm https://raw.githubusercontent.com/VTLO/VTLO_REcod3r/main/install-app.ps1 | iex
 ```
 
-Ensuite : tapez `recod3r` (application) ou `/recod3r` dans votre CLI d'IA — compatible **agy (Antigravity CLI)**, Claude Code, Gemini CLI et Codex. Détails dans [Installer en une commande](#installer-en-une-commande).
+Ensuite : tapez `recod3r` (application) ou `/recod3r` dans votre CLI d'IA — compatible **agy (Antigravity CLI)**, Claude Code, Gemini CLI et Codex. Python 3.8+ et git suffisent. Détails dans [Installer en une commande](#installer-en-une-commande).
 
 ---
 
@@ -56,32 +56,41 @@ Une application **autonome et multiplateforme** : elle analyse votre système, v
 <tr><td colspan="2"><img src="docs/img/app-5-livraison.png" alt="Livraison"></td></tr>
 </table>
 
-### Installer et lancer
+### Installer en une commande
 
-Depuis les sources (Rust récent ; aucune autre dépendance côté moteur) :
+Voir l'encadré **⚡ Installation en une commande** en haut de page : l'application est écrite en **Python, sans aucune dépendance** (Python 3.8+ et git suffisent, rien à compiler). La commande récupère le dépôt, crée la commande `recod3r` (`~/.local/bin/recod3r`) puis ajoute `/recod3r` dans chaque CLI détecté (`recod3r integrer` pour le refaire) :
+
+| CLI | Compatible | Piloté en arrière-plan | Skill déposé dans |
+|---|---|---|---|
+| **agy** (Antigravity CLI) | ✔ | `agy --dangerously-skip-permissions -p …` | `~/.gemini/antigravity-cli/skills/` |
+| Claude Code | ✔ | `claude -p …` | `~/.claude/skills/` + `commands/` |
+| Gemini CLI | ✔ | `gemini -p … --yolo` | `~/.gemini/skills/` + `commands/` |
+| Codex CLI | ✔ | `codex exec …` | `~/.codex/prompts/` |
+
+Avec agy : lancez `agy` une fois pour vous connecter, puis `recod3r` fait le reste. Dans l'invite de votre CLI d'IA, vous pouvez aussi coller : *« Installe VTLO_REcod3r en exécutant : curl -fsSL https://raw.githubusercontent.com/VTLO/VTLO_REcod3r/main/install-app.sh | sh »*.
+
+### Depuis les sources
 
 ```sh
 git clone https://github.com/VTLO/VTLO_REcod3r.git && cd VTLO_REcod3r/app
-cargo build --release -p recod3r-app
-./target/release/recod3r            # ouvre l'application
+python3 -m recod3r_app                  # ouvre l'application
+# ou : pipx install "git+https://github.com/VTLO/VTLO_REcod3r#subdirectory=app"
 ```
 
-En terminal pur : `recod3r scan` · `recod3r convert --yes` (0–100 % en gros chiffres) · `recod3r orchestrer`. Détails : [`app/README.md`](app/README.md).
+En terminal pur : `recod3r scan` · `recod3r convert --yes --add mon-skill.md --only mon-skill --orchestrer` (0–100 % en gros chiffres) · `recod3r orchestrer` · `recod3r integrer`. Détails : [`app/README.md`](app/README.md).
 
-Les binaires et l'application fenêtrée (Tauri 2) se construisent via le workflow [`build-app.yml`](.github/workflows/build-app.yml) (Linux, Windows, macOS) ; Android et iOS par `tauri android/ios build`.
+### Pourquoi Python ?
 
-### Pourquoi Rust + Tauri 2 ?
-
-Un **moteur Rust unique** (rapide, sans runtime, un seul binaire) partagé par tous les environnements, et une **interface HTML** qui sert de vitrine. **Tauri 2** est la seule voie mature qui couvre à la fois Linux, Windows, macOS, Android et iOS avec le même code.
+Python est déjà sur la plupart des machines de développeurs, ne demande **aucune compilation ni dépendance** (bibliothèque standard seule : serveur local, analyse, zip, processus) et fait tourner le même code sur Linux, Windows, macOS et Android (Termux). L'interface HTML est servie en local ; une fenêtre native est disponible avec `recod3r --fenetre` si `pywebview` est installé.
 
 ### Statut
 
 | Plateforme | État |
 |---|---|
-| Linux | moteur et interface compilés et exécutés de bout en bout (analyse, conversion, livraison) |
-| Windows · macOS | code portable ; compilation à valider par la CI fournie |
-| Android | via Termux (binaire) ou Tauri ; sandbox système : l'IA ne se pilote que depuis Termux |
-| iOS | via Tauri (Xcode) ; sandbox : analyse, rapport et squelettes, pas d'agent IA lancé localement |
+| Linux | moteur et interface exécutés de bout en bout (analyse, sélection, conversion, orchestration) |
+| Windows · macOS | code portable (chemins, processus, PowerShell) ; tests lancés par la CI fournie |
+| Android | via Termux (`pkg install python git`), l'IA peut s'y piloter |
+| iOS | sandbox système : analyse, rapport et squelettes, pas d'agent IA lancé localement |
 
 ---
 
