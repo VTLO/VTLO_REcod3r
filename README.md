@@ -38,16 +38,17 @@ Ensuite : tapez `recod3r` (application) ou `/recod3r` dans votre CLI d'IA — co
 
 Une application **autonome et multiplateforme** : elle analyse votre système, vous montre ce que vous gagnez, puis convertit tout en **une seule validation**.
 
-<p align="center"><img src="docs/img/flow.svg" alt="Flux en 5 étapes" width="100%"></p>
+<p align="center"><img src="docs/img/flow.svg" alt="Flux de l'application" width="100%"></p>
 
 **Ce qu'elle fait**
 
 1. **Scanne** votre machine avec les outils habituels : skills, commandes et prompts de Claude, Gemini CLI, Codex, agy… plus les dossiers ou archives `.zip` que vous ajoutez.
 2. **Chiffre l'économie** pour chaque élément : **tokens, euros, durée**, nombre de scripts, amortissement. Les hypothèses (utilisateurs, usages par mois, prix du million de tokens) se règlent par curseurs et le rapport se recalcule en direct.
-3. **Une seule validation** : **OK** ou **IGNORER**.
-4. **Convertit tout d'un coup**, avec l'avancement de **0 à 100 % en direct**, jusqu'à ce que les livrables soient prêts.
-5. **Livre** un dossier prêt à l'emploi : `scripts/` (code à lancer), `skills/` (skills légers), `commandes/` (Claude, Gemini, Codex/agy), `LISEZMOI.md`. Aucun test imposé : la vérification, c'est l'usage réel.
-6. **Option : l'orchestration**, qui enchaîne les scripts ; l'IA n'est appelée qu'aux points de décision.
+3. **Vous laisse choisir** : cochez les skills à convertir et **ajoutez les vôtres** (glisser-déposer, chemin, `.zip` ou collage direct). En terminal : `--add CHEMIN`, `--only skill1,skill2`, `--all`.
+4. **Une seule validation** : **OK** ou **IGNORER**.
+5. **Convertit tout d'un coup**, avec l'avancement de **0 à 100 % en direct**, par l'IA de votre CLI (agy, Claude Code, Gemini CLI, Codex), jusqu'à ce que les livrables soient prêts.
+6. **Livre** un dossier prêt à l'emploi : `scripts/` (code à lancer), `skills/` (skills légers), `commandes/` (Claude, Gemini, Codex/agy), `LISEZMOI.md`. Aucun test imposé : la vérification, c'est l'usage réel.
+7. **Vous propose l'orchestration** : un clic (ou `--orchestrer`) et vos scripts s'enchaînent en **pipeline complet prêt à l'emploi** ; l'IA n'est appelée qu'aux points de décision.
 
 <table>
 <tr><td><img src="docs/img/app-3-rapport-50.png" alt="Rapport d'économies"></td><td><img src="docs/img/app-4-conversion.png" alt="Conversion 0 à 100 %"></td></tr>

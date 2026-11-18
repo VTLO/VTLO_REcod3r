@@ -89,7 +89,7 @@ pub struct Item {
     pub tokens: f64, pub codeable: Option<f64>, pub verdict: String, pub n_code: usize, pub n_mixed: usize, pub n_ai: usize,
     pub code_steps: Vec<String>, pub ai_steps: Vec<String>, pub lang: String, pub lang_why: String,
     pub before_tokens: f64, pub after_tokens: f64, pub save_per_use: f64, pub payback_uses: Option<u32>,
-    pub ai_sec_per_use: f64, pub script_sec_per_use: f64, pub convertible: bool, pub has_scripts: bool, pub secrets: bool,
+    pub ai_sec_per_use: f64, pub script_sec_per_use: f64, pub convertible: bool, pub selected: bool, pub has_scripts: bool, pub secrets: bool,
     pub families: Vec<String>,
 }
 
@@ -175,7 +175,7 @@ pub fn analyze(a: &Asset, p: &Params) -> Item {
         payback_uses: if save > 0.0 { Some(((2500.0 + 2.0 * a.tokens) / save).ceil() as u32) } else { None },
         ai_sec_per_use: before / 1000.0 * p.ai_sec_per_ktok,
         script_sec_per_use: after / 1000.0 * p.ai_sec_per_ktok + p.script_sec,
-        convertible: save > 0.0 && !a.has_scripts, has_scripts: a.has_scripts, secrets: secret_rx().is_match(&a.body), families,
+        convertible: save > 0.0 && !a.has_scripts, selected: save > 0.0 && !a.has_scripts, has_scripts: a.has_scripts, secrets: secret_rx().is_match(&a.body), families,
     }
 }
 
@@ -299,8 +299,14 @@ fn from_extra(spec: &str, out: &mut Vec<Asset>, seen: &mut HashSet<PathBuf>) {
         }
         return;
     }
+    // fichier choisi à la main : toujours accepté comme skill (md, mdc, txt, toml)
+    if p.is_file() {
+        let ext = p.extension().map(|e| e.to_string_lossy().to_lowercase()).unwrap_or_default();
+        if matches!(ext.as_str(), "md" | "mdc" | "txt" | "toml" | "markdown") { from_file("extra", "skill", p.parent().unwrap_or(Path::new(".")), &p, out, seen); }
+        return;
+    }
     let mut files = vec![];
-    if p.is_file() { files.push(p.clone()); } else { walk(&p, 0, &mut files); }
+    walk(&p, 0, &mut files);
     for f in files {
         let n = f.file_name().map(|s| s.to_string_lossy().into_owned()).unwrap_or_default();
         let attached = f.components().any(|c| matches!(c.as_os_str().to_string_lossy().as_ref(), "references" | "resources" | "assets" | "templates" | "examples"));
