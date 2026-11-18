@@ -16,6 +16,24 @@ VTLO_REcod3r est **la prochaine avancée de votre façon de coder et de raisonne
 
 ---
 
+## ⚡ Installation en une commande
+
+**Linux · macOS · Android (Termux)** — à coller dans un terminal, ou directement dans agy, Claude Code, Gemini CLI, Codex :
+
+```sh
+curl -fsSL https://raw.githubusercontent.com/VTLO/VTLO_REcod3r/main/install-app.sh | sh
+```
+
+**Windows (PowerShell)** :
+
+```powershell
+irm https://raw.githubusercontent.com/VTLO/VTLO_REcod3r/main/install-app.ps1 | iex
+```
+
+Ensuite : tapez `recod3r` (application) ou `/recod3r` dans votre CLI d'IA — compatible **agy (Antigravity CLI)**, Claude Code, Gemini CLI et Codex. Détails dans [Installer en une commande](#installer-en-une-commande).
+
+---
+
 ## 1 · L'application
 
 Une application **autonome et multiplateforme** : elle analyse votre système, vous montre ce que vous gagnez, puis convertit tout en **une seule validation**.
